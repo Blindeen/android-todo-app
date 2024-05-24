@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/linear_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_list_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/header_padding"
+            android:paddingVertical="@dimen/header_padding"
+            android:text="@string/tasks_header"
+            android:textSize="@dimen/header_font_size"
+            android:textStyle="bold" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:backgroundTint="@color/green"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="10dp">
+
+            <LinearLayout
+                android:id="@+id/linear_search_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/card_search_padding"
+                android:paddingVertical="@dimen/card_search_padding">
+
+                <EditText
+                    android:id="@+id/input_task_name"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.85"
+                    android:autofillHints=""
+                    android:ems="10"
+                    android:hint="@string/search_input_placeholder"
+                    android:inputType="text"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/apricot_cream"
+                    android:textSize="@dimen/standard_font_size" />
+
+                <ImageButton
+                    android:id="@+id/button_search_task"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.15"
+                    android:background="@drawable/rounded_image_button"
+                    android:contentDescription="@string/search_button_content_description"
+                    android:scaleX="@dimen/search_icon_scale"
+                    android:scaleY="@dimen/search_icon_scale"
+                    android:src="@drawable/search_icon"
+                    app:tint="@color/white" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:itemCount="10"
+            tools:listitem="@layout/recycler_view_row_item" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linear_floating_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/floating_menu_margin"
+        android:orientation="vertical">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/add_task_button_content_description"
+            android:onClick="addTaskButtonOnClick"
+            android:src="@drawable/add_icon"
+            app:backgroundTint="@color/green"
+            app:elevation="0dp"
+            app:fabCustomSize="@dimen/fab_size"
+            app:maxImageSize="@dimen/add_icon_size"
+            app:shapeAppearanceOverlay="@style/RoundButtonShape"
+            app:tint="@color/white" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/settings_button_content_description"
+            android:onClick="settingsButtonOnClick"
+            android:src="@drawable/settings_icon"
+            app:backgroundTint="@color/green"
+            app:elevation="0dp"
+            app:fabCustomSize="@dimen/fab_size"
+            app:maxImageSize="@dimen/settings_icon_size"
+            app:shapeAppearanceOverlay="@style/RoundButtonShape"
+            app:tint="@color/white" />
+
+    </LinearLayout>
+</RelativeLayout>

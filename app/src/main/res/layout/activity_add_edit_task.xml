@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context=".activity.AddEditTaskActivity">
+
+    <TextView
+        android:id="@+id/text_add_edit_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/main_layout_padding"
+        android:paddingVertical="@dimen/header_padding"
+        android:text="@string/add_edit_task_header"
+        android:textSize="@dimen/header_font_size"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".activity.AddEditTaskActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/main_layout_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/text_task_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:ems="10"
+                    android:hint="@string/task_name_input_placeholder"
+                    android:inputType="text"
+                    android:textColorHint="@color/river_pirate_blue"
+                    android:textSize="@dimen/standard_font_size" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/text_task_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="@string/description_input_placeholder"
+                    android:inputType="textMultiLine"
+                    android:textColorHint="@color/river_pirate_blue"
+                    android:textSize="@dimen/standard_font_size" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/text_category_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/choose_category_label"
+                    android:textSize="@dimen/standard_font_size" />
+
+                <Spinner
+                    android:id="@+id/spinner_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:entries="@array/spinner_notification_time_values"
+                    android:paddingHorizontal="@dimen/spinner_item_padding"
+                    tools:listitem="@layout/spinner_item" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/text_completion_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:ems="10"
+                    android:hint="@string/datetime_input_placeholder"
+                    android:inputType="datetime"
+                    android:textColorHint="@color/river_pirate_blue"
+                    android:textSize="@dimen/standard_font_size"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/checkBox3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/checkbox_notification_label" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="end"
+                android:orientation="horizontal"
+                android:paddingVertical="@dimen/form_element_v_padding">
+
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/green"
+                    android:onClick="addButtonOnClick"
+                    android:text="@string/button_add_text"
+                    android:textSize="@dimen/standard_font_size" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

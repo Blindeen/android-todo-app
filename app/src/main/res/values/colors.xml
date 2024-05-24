@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="trust_issues">#DAEAECDA</color>
+    <color name="apricot_cream">#FFFDE7</color>
+    <color name="green">#008631</color>
+    <color name="river_pirate_blue">#78909C</color>
+</resources>

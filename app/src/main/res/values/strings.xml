@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">TODOList</string>
+
+    <!-- Main Activity -->
+    <string name="tasks_header">Tasks</string>
+    <string name="add_task_button_content_description">Add task</string>
+    <string name="search_button_content_description">Search</string>
+    <string name="settings_button_content_description">Settings</string>
+    <string name="search_input_placeholder">Search for task</string>
+
+    <!-- Settings Activity -->
+    <string name="settings_header">Settings</string>
+    <string name="hide_done_tasks_label">Hide done tasks</string>
+    <string name="choose_notification_time_label_prefix">Notifications are</string>
+    <string name="choose_notification_time_label_suffix">before events</string>
+    <string-array name="spinner_notification_time_values">
+        <item>5 min</item>
+        <item>30 min</item>
+        <item>1 h</item>
+        <item>1 day</item>
+    </string-array>
+    <string name="button_apply_text">Apply</string>
+
+    <!-- Add/Edit task Activity -->
+    <string name="add_edit_task_header">Add/Edit task</string>
+    <string name="task_name_input_placeholder">Task name</string>
+    <string name="description_input_placeholder">Task description</string>
+    <string name="datetime_input_placeholder">Completion datetime</string>
+    <string name="choose_category_label">Choose category:</string>
+    <string name="button_add_text">Add</string>
+    <string name="button_edit_text">Edit</string>
+    <string name="checkbox_notification_label">Notification</string>
+
+    <!-- Shared Preferences -->
+    <string name="shared_pref_filename">app_pref</string>
+    <string name="hide_done_tasks_key">hide_done_tasks</string>
+    <string name="chosen_category_key">chosen_category</string>
+    <string name="notification_before_min_key">notification_before_min</string>
+</resources>

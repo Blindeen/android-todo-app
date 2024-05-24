@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.SettingsActivity">
+
+    <TextView
+        android:id="@+id/text_settings_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/header_padding"
+        android:paddingVertical="@dimen/header_padding"
+        android:text="@string/settings_header"
+        android:textSize="@dimen/header_font_size"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/main_layout_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/checkbox_hide_done_tasks"
+                style="@style/ShapeAppearance.Material3.Corner.ExtraSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/hide_done_tasks_label"
+                android:textSize="@dimen/standard_font_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/form_element_h_padding"
+            android:paddingVertical="@dimen/form_element_v_padding">
+
+            <TextView
+                android:id="@+id/text_visible_category_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_category_label"
+                android:textSize="@dimen/standard_font_size" />
+
+            <Spinner
+                android:id="@+id/spinner_visible_category"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="@dimen/spinner_item_padding"
+                tools:listitem="@layout/spinner_item" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/form_element_h_padding"
+            android:paddingVertical="@dimen/form_element_v_padding">
+
+            <TextView
+                android:id="@+id/text_notification_time_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_notification_time_label_prefix"
+                android:textSize="@dimen/standard_font_size" />
+
+            <Spinner
+                android:id="@+id/spinner_notification_time"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:entries="@array/spinner_notification_time_values"
+                android:paddingHorizontal="@dimen/spinner_item_padding"
+                tools:listitem="@layout/spinner_item" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_notification_time_label_suffix"
+                android:textSize="@dimen/standard_font_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:paddingVertical="@dimen/form_element_v_padding">
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/green"
+                android:onClick="applyButtonOnClick"
+                android:text="@string/button_apply_text"
+                android:textSize="@dimen/standard_font_size" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
