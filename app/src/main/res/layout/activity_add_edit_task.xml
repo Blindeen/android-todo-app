@@ -81,7 +81,6 @@
                     android:id="@+id/spinner_category"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:entries="@array/spinner_notification_time_values"
                     android:paddingHorizontal="@dimen/spinner_item_padding"
                     tools:listitem="@layout/spinner_item" />
 
