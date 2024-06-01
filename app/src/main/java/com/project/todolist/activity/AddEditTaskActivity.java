@@ -28,8 +28,15 @@ import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class AddEditTaskActivity extends MainActivity {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
+
+    private Disposable addTaskQuerySubscriber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +64,10 @@ public class AddEditTaskActivity extends MainActivity {
 
         if (categoryListQuerySubscriber != null) {
             categoryListQuerySubscriber.dispose();
+        }
+
+        if (addTaskQuerySubscriber != null) {
+            addTaskQuerySubscriber.dispose();
         }
     }
 
@@ -144,11 +155,17 @@ public class AddEditTaskActivity extends MainActivity {
 
     private void saveTask() {
         Task newTask = createTask();
-
+        Completable completable = database.taskDao().insertTasks(newTask);
+        addTaskQuerySubscriber = completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    displayToast(this, "New task has been added successfully");
+                    finish();
+                }, throwable -> displayToast(this, "Failed to add new task"));
     }
 
     public void addButtonOnClick(View view) {
-        displayToast(this, "New task has been added successfully");
-        finish();
+        saveTask();
     }
 }
