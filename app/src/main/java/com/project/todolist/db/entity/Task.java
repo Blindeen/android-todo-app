@@ -1,6 +1,7 @@
 package com.project.todolist.db.entity;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -10,7 +11,9 @@ public class Task {
     private long taskId;
     private String title;
     private String description;
+    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
     private String createdAt;
+    @ColumnInfo(defaultValue = "0")
     private boolean isDone;
     private String doneAt;
     private boolean notification;
