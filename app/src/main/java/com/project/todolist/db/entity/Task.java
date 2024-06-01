@@ -7,6 +7,17 @@ import androidx.room.PrimaryKey;
 
 @Entity
 public class Task {
+    public Task() {
+    }
+
+    public Task(String title, String description, String doneAt, boolean notification, long categoryId) {
+        this.title = title;
+        this.description = description;
+        this.doneAt = doneAt;
+        this.notification = notification;
+        this.categoryId = categoryId;
+    }
+
     @PrimaryKey(autoGenerate = true)
     private long taskId;
     private String title;
