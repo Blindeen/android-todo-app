@@ -11,13 +11,15 @@ import com.project.todolist.db.entity.TaskWithCategory;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Completable;
+
 @Dao
 public interface TaskDao {
     @Query("SELECT * FROM Task")
     List<TaskWithCategory> getAll();
 
     @Insert
-    void insertTasks(Task... tasks);
+    Completable insertTasks(Task... tasks);
 
     @Update
     void updateTasks(Task... tasks);
