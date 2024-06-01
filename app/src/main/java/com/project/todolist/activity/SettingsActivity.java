@@ -16,7 +16,6 @@ import com.project.todolist.MainActivity;
 import com.project.todolist.NotificationTimeSpinnerItem;
 import com.project.todolist.R;
 import com.project.todolist.db.AppDatabase;
-import com.project.todolist.db.dao.CategoryDao;
 import com.project.todolist.db.entity.Category;
 
 import static com.project.todolist.Utils.*;
@@ -24,16 +23,10 @@ import static com.project.todolist.Utils.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 public class SettingsActivity extends MainActivity {
     private static final Integer NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT = 0;
 
     private Integer notificationBeforeCompletionMin;
-    private Disposable categoryListQuerySubscriber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,25 +70,13 @@ public class SettingsActivity extends MainActivity {
 
     private void configureForm() {
         configureHideDoneTasksCheckbox();
-        configureCategorySpinner();
+        fetchCategories(this::setCategorySpinnerData);
         configureNotificationTimeSpinner();
     }
 
     private void configureHideDoneTasksCheckbox() {
         CheckBox hideDoneTasksCheckbox = findViewById(R.id.checkbox_hide_done_tasks);
         hideDoneTasksCheckbox.setChecked(hideDoneTasks);
-    }
-
-    private void configureCategorySpinner() {
-        CategoryDao categoryDao = database.categoryDao();
-        Single<List<Category>> categoryListSingle = categoryDao.getAll();
-        categoryListQuerySubscriber = categoryListSingle
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        this::setCategorySpinnerData,
-                        throwable -> displayToast(this, "Error: It was not possible to fetch categories")
-                );
     }
 
     private void setCategorySpinnerData(List<Category> categoryList) {

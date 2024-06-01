@@ -1,5 +1,7 @@
 package com.project.todolist;
 
+import static com.project.todolist.Utils.displayToast;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,6 +16,16 @@ import androidx.core.view.WindowInsetsCompat;
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.activity.SettingsActivity;
 import com.project.todolist.db.AppDatabase;
+import com.project.todolist.db.dao.CategoryDao;
+import com.project.todolist.db.entity.Category;
+import com.project.todolist.interfaces.ResponseHandler;
+
+import java.util.List;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
@@ -23,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     protected SharedPreferences sharedPreferences;
     protected boolean hideDoneTasks;
     protected Long chosenCategory;
+    protected Disposable categoryListQuerySubscriber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,5 +82,17 @@ public class MainActivity extends AppCompatActivity {
     private <T> void openNewActivity(Class<T> className) {
         Intent intent = new Intent(this, className);
         startActivity(intent);
+    }
+
+    protected void fetchCategories(ResponseHandler responseHandler) {
+        CategoryDao categoryDao = database.categoryDao();
+        Single<List<Category>> categoryListSingle = categoryDao.getAll();
+        categoryListQuerySubscriber = categoryListSingle
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        responseHandler::handle,
+                        throwable -> displayToast(this, "Error: It was not possible to fetch categories")
+                );
     }
 }
