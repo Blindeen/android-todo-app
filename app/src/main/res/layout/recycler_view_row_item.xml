@@ -7,6 +7,7 @@
     app:cardElevation="10dp">
 
     <LinearLayout
+        android:id="@+id/linear_layotu_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
@@ -15,9 +16,8 @@
 
         <CheckBox
             android:id="@+id/checkBox"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:checked="false"
             android:text="Task"
             android:textSize="@dimen/standard_font_size" />
