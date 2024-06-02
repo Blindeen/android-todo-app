@@ -157,6 +157,8 @@ public class AddEditTaskActivity extends MainActivity {
             errorText.setError("");
             errorText.setTextColor(Color.RED);
             errorText.setText("Choose a category");
+
+            isValid = false;
         }
 
         return isValid;
