@@ -32,11 +32,13 @@ import static com.project.todolist.Utils.*;
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
     private final static Long CHOSEN_CATEGORY_ID_DEFAULT = null;
+    private static final Integer NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT = 0;
 
     protected AppDatabase database;
     protected SharedPreferences sharedPreferences;
     protected boolean hideDoneTasks;
     protected Long chosenCategory;
+    protected Integer notificationBeforeCompletionMin;
     protected Disposable categoryListQuerySubscriber;
 
     @Override
@@ -72,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
         if (chosenCategory == -1) {
             chosenCategory = CHOSEN_CATEGORY_ID_DEFAULT;
         }
+        notificationBeforeCompletionMin = sharedPreferences.getInt(
+                getString(R.string.notification_before_min_key),
+                NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT
+        );
     }
 
     public void addTaskButtonOnClick(View view) {

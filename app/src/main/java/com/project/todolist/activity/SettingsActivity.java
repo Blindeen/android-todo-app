@@ -15,7 +15,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.project.todolist.MainActivity;
 import com.project.todolist.NotificationTimeSpinnerItem;
 import com.project.todolist.R;
-import com.project.todolist.db.AppDatabase;
 import com.project.todolist.db.entity.Category;
 
 import static com.project.todolist.Utils.*;
@@ -24,10 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SettingsActivity extends MainActivity {
-    private static final Integer NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT = 0;
-
-    private Integer notificationBeforeCompletionMin;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,9 +39,6 @@ public class SettingsActivity extends MainActivity {
             return insets;
         });
 
-        database = AppDatabase.getDatabase(this);
-        initializeSharedPreferences();
-        loadAppPreferences();
         configureForm();
     }
 
@@ -57,15 +49,6 @@ public class SettingsActivity extends MainActivity {
         if (categoryListQuerySubscriber != null) {
             categoryListQuerySubscriber.dispose();
         }
-    }
-
-    @Override
-    protected void loadAppPreferences() {
-        super.loadAppPreferences();
-        notificationBeforeCompletionMin = sharedPreferences.getInt(
-                getString(R.string.notification_before_min_key),
-                NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT
-        );
     }
 
     private void configureForm() {
