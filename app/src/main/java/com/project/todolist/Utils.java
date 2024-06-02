@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.core.app.NotificationCompat;
 
 public class Utils {
+    private static int notificationId = 0;
+
     public static void displayToast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
@@ -19,7 +21,7 @@ public class Utils {
         String channelId = context.getString(R.string.notification_channel_id);
         CharSequence name = context.getString(R.string.notification_channel_name);
         String description = context.getString(R.string.notification_channel_description);
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        int importance = NotificationManager.IMPORTANCE_HIGH;
 
         NotificationChannel channel = new NotificationChannel(channelId, name, importance);
         channel.setDescription(description);
@@ -35,8 +37,9 @@ public class Utils {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         return new NotificationCompat.Builder(context, channelId)
-                .setContentTitle("My notification")
-                .setContentText("Hello World!")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(title)
+                .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -47,6 +50,6 @@ public class Utils {
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         Notification notification = createNotification(context, title, message);
-        mNotificationManager.notify(0, notification);
+        mNotificationManager.notify(notificationId++, notification);
     }
 }

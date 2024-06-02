@@ -27,6 +27,8 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.project.todolist.Utils.*;
+
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
     private final static Long CHOSEN_CATEGORY_ID_DEFAULT = null;
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        createNotificationChannel(this);
         database = AppDatabase.getDatabase(this);
         initializeSharedPreferences();
         loadAppPreferences();
