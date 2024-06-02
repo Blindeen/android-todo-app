@@ -4,6 +4,7 @@ import static com.project.todolist.Utils.displayToast;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -35,12 +36,18 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AddEditTaskActivity extends MainActivity {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
+            "MMM dd, yyyy hh:mm a"
+    );
 
+    boolean isEdit = false;
+
+    private TextView headerLabel;
     private EditText titleInput, descriptionInput, dateTimeInput;
     private Spinner categorySpinner;
     private CheckBox notificationCheckbox;
-    private Disposable addTaskQuerySubscriber;
+
+    private Disposable taskQuerySubscriber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +66,9 @@ public class AddEditTaskActivity extends MainActivity {
         });
 
         initializeWidgets();
-        configureForm();
+        Intent intent = getIntent();
+        Task task = (Task) intent.getSerializableExtra("task");
+        configureForm(task);
     }
 
     @Override
@@ -70,12 +79,13 @@ public class AddEditTaskActivity extends MainActivity {
             categoryListQuerySubscriber.dispose();
         }
 
-        if (addTaskQuerySubscriber != null) {
-            addTaskQuerySubscriber.dispose();
+        if (taskQuerySubscriber != null) {
+            taskQuerySubscriber.dispose();
         }
     }
 
     private void initializeWidgets() {
+        headerLabel = findViewById(R.id.text_add_edit_header);
         titleInput = findViewById(R.id.text_task_title);
         descriptionInput = findViewById(R.id.text_task_description);
         categorySpinner = findViewById(R.id.spinner_category);
@@ -83,8 +93,24 @@ public class AddEditTaskActivity extends MainActivity {
         notificationCheckbox = findViewById(R.id.checkbox_notification);
     }
 
-    private void configureForm() {
-        fetchCategories(this::setCategorySpinnerData);
+    private void configureForm(Task task) {
+        if (task != null) {
+            isEdit = true;
+            titleInput.setText(task.getTitle());
+            descriptionInput.setText(task.getDescription());
+            dateTimeInput.setText(task.getDoneAt());
+            notificationCheckbox.setChecked(task.isNotification());
+
+            fetchCategories(categoryList -> {
+                setCategorySpinnerData(categoryList);
+                int position = categoryList.indexOf(new Category(task.getCategoryId(), ""));
+                categorySpinner.setSelection(position);
+            });
+        } else {
+            fetchCategories(this::setCategorySpinnerData);
+        }
+        headerLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
+
         configTaskCompletionPicker();
     }
 
@@ -156,7 +182,7 @@ public class AddEditTaskActivity extends MainActivity {
             TextView errorText = (TextView) categorySpinner.getSelectedView();
             errorText.setError("");
             errorText.setTextColor(Color.RED);
-            errorText.setText("Choose a category");
+            errorText.setText(R.string.spinner_category_error);
 
             isValid = false;
         }
@@ -181,7 +207,7 @@ public class AddEditTaskActivity extends MainActivity {
 
         Task newTask = createTask();
         Completable completable = database.taskDao().insertTasks(newTask);
-        addTaskQuerySubscriber = completable
+        taskQuerySubscriber = completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
