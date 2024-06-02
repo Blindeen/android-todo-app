@@ -2,7 +2,6 @@ package com.project.todolist.db.dao;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
-import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -19,8 +18,11 @@ public interface TaskDao {
     @Query("SELECT * FROM Task")
     Single<List<TaskWithCategory>> getAll();
 
-    @Insert
-    Completable insertTasks(Task... tasks);
+    @Query(
+            "INSERT INTO Task (title, description, doneAt, categoryId, notification)" +
+                    "VALUES (:title, :description, :dateTime, :categoryId, :notification)"
+    )
+    Completable insertTask(String title, String description, String dateTime, long categoryId, boolean notification);
 
     @Update
     void updateTasks(Task... tasks);

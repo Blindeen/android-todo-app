@@ -206,7 +206,13 @@ public class AddEditTaskActivity extends MainActivity {
         }
 
         Task newTask = createTask();
-        Completable completable = database.taskDao().insertTasks(newTask);
+        Completable completable = database.taskDao().insertTask(
+                newTask.getTitle(),
+                newTask.getDescription(),
+                newTask.getDoneAt(),
+                newTask.getCategoryId(),
+                newTask.isNotification()
+        );
         taskQuerySubscriber = completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
