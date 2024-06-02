@@ -36,4 +36,9 @@
     <string name="hide_done_tasks_key">hide_done_tasks</string>
     <string name="chosen_category_key">chosen_category</string>
     <string name="notification_before_min_key">notification_before_min</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_id">TODOList_channel</string>
+    <string name="notification_channel_name">TODOList channel</string>
+    <string name="notification_channel_description">Channel for TODOList notifications</string>
 </resources>
