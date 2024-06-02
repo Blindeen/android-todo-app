@@ -12,12 +12,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.activity.SettingsActivity;
+import com.project.todolist.adapter.TaskListAdapter;
 import com.project.todolist.db.AppDatabase;
 import com.project.todolist.db.dao.CategoryDao;
+import com.project.todolist.db.dao.TaskDao;
 import com.project.todolist.db.entity.Category;
+import com.project.todolist.db.entity.TaskWithCategory;
 import com.project.todolist.interfaces.ResponseHandler;
 
 import java.util.List;
@@ -29,6 +33,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.project.todolist.Utils.*;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
     private final static Long CHOSEN_CATEGORY_ID_DEFAULT = null;
@@ -39,7 +45,11 @@ public class MainActivity extends AppCompatActivity {
     protected boolean hideDoneTasks;
     protected Long chosenCategory;
     protected Integer notificationBeforeCompletionMin;
+
     protected Disposable categoryListQuerySubscriber;
+    private Disposable taskListQuerySubscriber;
+
+    private RecyclerView taskListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +67,27 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        taskListView = findViewById(R.id.recycler_task_list);
+
         createNotificationChannel(this);
         database = AppDatabase.getDatabase(this);
         initializeSharedPreferences();
         loadAppPreferences();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchTasks();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (taskListQuerySubscriber != null) {
+            taskListQuerySubscriber.dispose();
+        }
     }
 
     protected void initializeSharedPreferences() {
@@ -103,5 +130,26 @@ public class MainActivity extends AppCompatActivity {
                         responseHandler::handle,
                         throwable -> displayToast(this, "Error: It was not possible to fetch categories")
                 );
+    }
+
+    private void fetchTasks() {
+        TaskDao taskDao = database.taskDao();
+        Single<List<TaskWithCategory>> taskList = taskDao.getAll();
+        taskListQuerySubscriber = taskList
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        this::setTaskRecyclerData,
+                        throwable -> displayToast(this, "Unable to fetch tasks")
+                );
+    }
+
+    private void setTaskRecyclerData(List<TaskWithCategory> taskList) {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        taskListView.setLayoutManager(linearLayoutManager);
+
+        TaskListAdapter taskListAdapter = new TaskListAdapter(taskList);
+        taskListView.setAdapter(taskListAdapter);
     }
 }
