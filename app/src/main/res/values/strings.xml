@@ -22,12 +22,13 @@
     <string name="button_apply_text">Apply</string>
 
     <!-- Add/Edit task Activity -->
-    <string name="add_edit_task_header">Add/Edit task</string>
+    <string name="new_task_header">New task</string>
+    <string name="edit_task_header">Edit task</string>
     <string name="task_name_input_placeholder">Task name</string>
     <string name="description_input_placeholder">Task description</string>
     <string name="datetime_input_placeholder">Completion datetime</string>
     <string name="choose_category_label">Choose category:</string>
-    <string name="button_add_text">Add</string>
+    <string name="button_add_text">Save</string>
     <string name="button_edit_text">Edit</string>
     <string name="checkbox_notification_label">Notification</string>
 
