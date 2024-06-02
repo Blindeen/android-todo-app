@@ -24,7 +24,6 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "database")
                             .createFromAsset("database/prepopulated_db.db")
-                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }
