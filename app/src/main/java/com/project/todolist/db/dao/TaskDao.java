@@ -14,8 +14,13 @@ import io.reactivex.rxjava3.core.Single;
 
 @Dao
 public interface TaskDao {
-    @Query("SELECT * FROM Task WHERE title LIKE :titlePattern ORDER BY isDone, doneAt")
-    Single<List<Task>> getTasks(String titlePattern);
+    @Query("SELECT * FROM Task " +
+            "WHERE (isDone = false OR isDone != :hideDone) " +
+            "AND title LIKE :titlePattern " +
+            "AND (categoryId = :categoryId OR :categoryId IS NULL) " +
+            "ORDER BY isDone, doneAt"
+    )
+    Single<List<Task>> getTasks(String titlePattern, boolean hideDone, Long categoryId);
 
     @Query(
             "INSERT INTO Task (title, description, doneAt, categoryId, notification)" +

@@ -39,6 +39,7 @@ public class SettingsActivity extends MainActivity {
             return insets;
         });
 
+        loadAppPreferences();
         configureForm();
     }
 

@@ -74,12 +74,12 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel(this);
         database = AppDatabase.getDatabase(this);
         initializeSharedPreferences();
-        loadAppPreferences();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        loadAppPreferences();
         fetchTasks(titlePattern);
     }
 
@@ -99,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
     protected void loadAppPreferences() {
         hideDoneTasks = sharedPreferences.getBoolean(getString(R.string.hide_done_tasks_key), HIDE_DONE_TASKS_DEFAULT);
-        chosenCategory = sharedPreferences.getLong(getString(R.string.chosen_category_key), -1);
-        if (chosenCategory == -1) {
+        chosenCategory = sharedPreferences.getLong(getString(R.string.chosen_category_key), 0);
+        if (chosenCategory == 0) {
             chosenCategory = CHOSEN_CATEGORY_ID_DEFAULT;
         }
         notificationBeforeCompletionMin = sharedPreferences.getInt(
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchTasks(String titlePattern) {
         TaskDao taskDao = database.taskDao();
-        Single<List<Task>> taskList = taskDao.getTasks(titlePattern);
+        Single<List<Task>> taskList = taskDao.getTasks(titlePattern, hideDoneTasks, chosenCategory);
         taskListQuerySubscriber = taskList
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
