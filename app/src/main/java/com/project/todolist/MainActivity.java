@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     protected Disposable categoryListQuerySubscriber;
     private Disposable taskListQuerySubscriber;
 
+    private String titlePattern = "%%";
     private RecyclerView taskListView;
 
     @Override
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        fetchTasks();
+        fetchTasks(titlePattern);
     }
 
     @Override
@@ -132,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 );
     }
 
-    private void fetchTasks() {
+    private void fetchTasks(String titlePattern) {
         TaskDao taskDao = database.taskDao();
-        Single<List<TaskWithCategory>> taskList = taskDao.getAll();
+        Single<List<TaskWithCategory>> taskList = taskDao.getTasks(titlePattern);
         taskListQuerySubscriber = taskList
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -151,5 +153,12 @@ public class MainActivity extends AppCompatActivity {
 
         TaskListAdapter taskListAdapter = new TaskListAdapter(taskList);
         taskListView.setAdapter(taskListAdapter);
+    }
+
+    public void searchButtonOnClick(View view) {
+        TextView searchInput = findViewById(R.id.input_search);
+        String searchInputValue = searchInput.getText().toString();
+        titlePattern = "%" + searchInputValue + "%";
+        fetchTasks(titlePattern);
     }
 }

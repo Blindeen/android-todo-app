@@ -43,7 +43,7 @@
                 android:paddingVertical="@dimen/card_search_padding">
 
                 <EditText
-                    android:id="@+id/input_task_name"
+                    android:id="@+id/input_search"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.85"
@@ -62,6 +62,7 @@
                     android:layout_weight="0.15"
                     android:background="@drawable/rounded_image_button"
                     android:contentDescription="@string/search_button_content_description"
+                    android:onClick="searchButtonOnClick"
                     android:scaleX="@dimen/search_icon_scale"
                     android:scaleY="@dimen/search_icon_scale"
                     android:src="@drawable/search_icon"
