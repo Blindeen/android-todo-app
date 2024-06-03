@@ -51,7 +51,9 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Task task = data.get(position).getTask();
-        viewHolder.getCheckBox().setText(task.toString());
+        CheckBox checkBox = viewHolder.getCheckBox();
+        checkBox.setText(task.toString());
+        checkBox.setChecked(task.isDone());
 
         LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.linear_layotu_row);
 
