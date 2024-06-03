@@ -50,14 +50,38 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        Task task = data.get(position).getTask();
+        TaskWithCategory taskWithCategory = data.get(position);
+        Task task = taskWithCategory.getTask();
         CheckBox checkBox = viewHolder.getCheckBox();
-        checkBox.setText(task.toString());
-        checkBox.setChecked(task.isDone());
+        prepareView(checkBox, task);
+
+        checkBox.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> checkBoxOnCheckedChanged(isChecked, taskWithCategory, viewHolder)
+        );
 
         LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.linear_layotu_row);
-
         linearLayout.setOnClickListener(v -> openAddEditActivity(v.getContext(), data.get(position)));
+    }
+
+    private void prepareView(CheckBox checkBox, Task task) {
+        checkBox.setText(task.toString());
+        checkBox.setChecked(task.isDone());
+    }
+
+    private void checkBoxOnCheckedChanged(
+            boolean isChecked,
+            TaskWithCategory taskWithCategory,
+            ViewHolder viewHolder
+    ) {
+        taskWithCategory.getTask().setDone(isChecked);
+        int oldPosition = data.indexOf(taskWithCategory);
+        data.sort((task1, task2) -> Boolean.compare(task1.getTask().isDone(), task2.getTask().isDone()));
+        int newPosition = data.indexOf(taskWithCategory);
+        if (oldPosition != newPosition) {
+            viewHolder.itemView.post(() -> notifyItemMoved(oldPosition, newPosition));
+        } else {
+            viewHolder.itemView.post(() -> notifyItemChanged(oldPosition));
+        }
     }
 
     private void openAddEditActivity(Context context, TaskWithCategory taskWithCategory) {
