@@ -51,6 +51,7 @@ public class AddEditTaskActivity extends MainActivity {
     private Button deleteButton;
 
     private Disposable taskQuerySubscriber;
+    private Disposable deleteTaskQuerySubscriber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,10 @@ public class AddEditTaskActivity extends MainActivity {
 
         if (taskQuerySubscriber != null) {
             taskQuerySubscriber.dispose();
+        }
+
+        if (deleteTaskQuerySubscriber != null) {
+            deleteTaskQuerySubscriber.dispose();
         }
     }
 
@@ -254,5 +259,20 @@ public class AddEditTaskActivity extends MainActivity {
 
     public void addButtonOnClick(View view) {
         saveTask();
+    }
+
+    private void deleteTask() {
+        Completable completable = database.taskDao().deleteTask(task);
+        deleteTaskQuerySubscriber = completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    displayToast(this, "Task has been deleted successfully");
+                    finish();
+                }, throwable -> displayToast(this, "Failed to delete task"));
+    }
+
+    public void deleteButtonOnClick(View view) {
+        deleteTask();
     }
 }
