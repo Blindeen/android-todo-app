@@ -78,6 +78,11 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         linearLayout.setOnClickListener(v -> openAddEditActivity(v.getContext(), task));
     }
 
+    @Override
+    public int getItemCount() {
+        return data.size();
+    }
+
     private void prepareView(CheckBox checkBox, Task task) {
         checkBox.setText(task.toString());
         checkBox.setChecked(task.isDone());
@@ -119,8 +124,9 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         context.startActivity(intent);
     }
 
-    @Override
-    public int getItemCount() {
-        return data.size();
+    public void setData(List<Task> data) {
+        this.data.clear();
+        this.data.addAll(data);
+        notifyDataSetChanged();
     }
 }
