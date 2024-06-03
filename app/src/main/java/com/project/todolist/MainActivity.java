@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         taskListView.setLayoutManager(linearLayoutManager);
 
-        TaskListAdapter taskListAdapter = new TaskListAdapter(taskList);
+        TaskListAdapter taskListAdapter = new TaskListAdapter(taskList, database);
         taskListView.setAdapter(taskListAdapter);
     }
 

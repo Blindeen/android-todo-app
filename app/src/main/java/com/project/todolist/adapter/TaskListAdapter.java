@@ -13,13 +13,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.R;
 import com.project.todolist.activity.AddEditTaskActivity;
+import com.project.todolist.db.AppDatabase;
 import com.project.todolist.db.entity.Task;
 import com.project.todolist.db.entity.TaskWithCategory;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHolder> {
     private final List<TaskWithCategory> data;
+    private final AppDatabase database;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final CheckBox checkBox;
@@ -35,8 +42,9 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         }
     }
 
-    public TaskListAdapter(List<TaskWithCategory> dataSet) {
-        data = dataSet;
+    public TaskListAdapter(List<TaskWithCategory> data, AppDatabase database) {
+        this.data = data;
+        this.database = database;
     }
 
     @NonNull
@@ -60,7 +68,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         );
 
         LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.linear_layotu_row);
-        linearLayout.setOnClickListener(v -> openAddEditActivity(v.getContext(), data.get(position)));
+        linearLayout.setOnClickListener(v -> openAddEditActivity(v.getContext(), task));
     }
 
     private void prepareView(CheckBox checkBox, Task task) {
@@ -73,7 +81,9 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
             TaskWithCategory taskWithCategory,
             ViewHolder viewHolder
     ) {
-        taskWithCategory.getTask().setDone(isChecked);
+        Task task = taskWithCategory.getTask();
+        task.setDone(isChecked);
+
         int oldPosition = data.indexOf(taskWithCategory);
         data.sort((task1, task2) -> Boolean.compare(task1.getTask().isDone(), task2.getTask().isDone()));
         int newPosition = data.indexOf(taskWithCategory);
@@ -82,11 +92,21 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         } else {
             viewHolder.itemView.post(() -> notifyItemChanged(oldPosition));
         }
+
+        updateTask(task);
     }
 
-    private void openAddEditActivity(Context context, TaskWithCategory taskWithCategory) {
+    private void updateTask(Task task) {
+        Completable completable = database.taskDao().updateTask(task);
+        Disposable updateTaskQuerySubscriber = completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {}, throwable -> {});
+    }
+
+    private void openAddEditActivity(Context context, Task task) {
         Intent intent = new Intent(context, AddEditTaskActivity.class);
-        intent.putExtra("task", taskWithCategory.getTask());
+        intent.putExtra("task", task);
         context.startActivity(intent);
     }
 
