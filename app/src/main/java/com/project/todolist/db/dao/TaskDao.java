@@ -25,7 +25,7 @@ public interface TaskDao {
     Completable insertTask(String title, String description, String dateTime, long categoryId, boolean notification);
 
     @Update
-    void updateTask(Task task);
+    Completable updateTask(Task task);
 
     @Delete
     void delete(Task task);

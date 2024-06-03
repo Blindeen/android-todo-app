@@ -40,6 +40,7 @@ public class AddEditTaskActivity extends MainActivity {
             "MMM dd, yyyy hh:mm a"
     );
 
+    private Task task;
     boolean isEdit = false;
 
     private TextView headerLabel;
@@ -95,7 +96,9 @@ public class AddEditTaskActivity extends MainActivity {
 
     private void configureForm(Task task) {
         if (task != null) {
+            this.task = task;
             isEdit = true;
+
             titleInput.setText(task.getTitle());
             descriptionInput.setText(task.getDescription());
             dateTimeInput.setText(task.getDoneAt());
@@ -190,28 +193,21 @@ public class AddEditTaskActivity extends MainActivity {
         return isValid;
     }
 
-    private Task createTask() {
+    private void createTask() {
         String title = titleInput.getText().toString();
         String description = descriptionInput.getText().toString();
         Category category = (Category) categorySpinner.getSelectedItem();
         String dateTime = dateTimeInput.getText().toString();
         boolean isChecked = notificationCheckbox.isChecked();
 
-        return new Task(title, description, dateTime, isChecked, category.getCategoryId());
-    }
+        task = new Task(title, description, dateTime, isChecked, category.getCategoryId());
 
-    private void saveTask() {
-        if (!validateForm()) {
-            return;
-        }
-
-        Task newTask = createTask();
         Completable completable = database.taskDao().insertTask(
-                newTask.getTitle(),
-                newTask.getDescription(),
-                newTask.getDoneAt(),
-                newTask.getCategoryId(),
-                newTask.isNotification()
+                task.getTitle(),
+                task.getDescription(),
+                task.getDoneAt(),
+                task.getCategoryId(),
+                task.isNotification()
         );
         taskQuerySubscriber = completable
                 .subscribeOn(Schedulers.io())
@@ -220,6 +216,36 @@ public class AddEditTaskActivity extends MainActivity {
                     displayToast(this, "New task has been added successfully");
                     finish();
                 }, throwable -> displayToast(this, "Failed to add new task"));
+    }
+
+    private void updateTask() {
+        task.setTitle(titleInput.getText().toString());
+        task.setDescription(descriptionInput.getText().toString());
+        task.setDoneAt(dateTimeInput.getText().toString());
+        task.setNotification(notificationCheckbox.isChecked());
+        Category category = (Category) categorySpinner.getSelectedItem();
+        task.setCategoryId(category.getCategoryId());
+
+        Completable completable = database.taskDao().updateTask(task);
+        taskQuerySubscriber = completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    displayToast(this, "Task has been updated successfully");
+                    finish();
+                }, throwable -> displayToast(this, "Failed to update task"));
+    }
+
+    private void saveTask() {
+        if (!validateForm()) {
+            return;
+        }
+
+        if (isEdit) {
+            updateTask();
+        } else {
+            createTask();
+        }
     }
 
     public void addButtonOnClick(View view) {
