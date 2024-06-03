@@ -27,5 +27,5 @@ public interface TaskDao {
     Completable updateTask(Task task);
 
     @Delete
-    void delete(Task task);
+    void deleteTask(Task task);
 }
