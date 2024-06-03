@@ -99,7 +99,7 @@
             android:paddingVertical="@dimen/form_element_v_padding">
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/button_save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/green"

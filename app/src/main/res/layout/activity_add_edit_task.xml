@@ -126,7 +126,21 @@
                 android:paddingVertical="@dimen/form_element_v_padding">
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/button_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/red"
+                    android:text="@string/button_delete_text"
+                    android:textSize="@dimen/standard_font_size"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="match_parent" />
+
+                <Button
+                    android:id="@+id/button_save"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/green"

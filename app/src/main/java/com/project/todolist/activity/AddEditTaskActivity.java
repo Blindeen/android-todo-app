@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -47,6 +48,7 @@ public class AddEditTaskActivity extends MainActivity {
     private EditText titleInput, descriptionInput, dateTimeInput;
     private Spinner categorySpinner;
     private CheckBox notificationCheckbox;
+    private Button deleteButton;
 
     private Disposable taskQuerySubscriber;
 
@@ -92,6 +94,7 @@ public class AddEditTaskActivity extends MainActivity {
         categorySpinner = findViewById(R.id.spinner_category);
         dateTimeInput = findViewById(R.id.text_completion_date);
         notificationCheckbox = findViewById(R.id.checkbox_notification);
+        deleteButton = findViewById(R.id.button_delete);
     }
 
     private void configureForm(Task task) {
@@ -112,8 +115,9 @@ public class AddEditTaskActivity extends MainActivity {
         } else {
             fetchCategories(this::setCategorySpinnerData);
         }
-        headerLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
 
+        headerLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
+        deleteButton.setVisibility(isEdit ? View.VISIBLE : View.GONE);
         configTaskCompletionPicker();
     }
 

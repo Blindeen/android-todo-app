@@ -29,6 +29,7 @@
     <string name="datetime_input_placeholder">Completion datetime</string>
     <string name="choose_category_label">Choose category:</string>
     <string name="button_add_text">Save</string>
+    <string name="button_delete_text">Delete</string>
     <string name="button_edit_text">Edit</string>
     <string name="checkbox_notification_label">Notification</string>
     <string name="spinner_category_error">Choose a category</string>
