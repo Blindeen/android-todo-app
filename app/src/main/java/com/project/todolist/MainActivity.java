@@ -69,11 +69,10 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        taskListView = findViewById(R.id.recycler_task_list);
-
-        createNotificationChannel(this);
         database = AppDatabase.getDatabase(this);
+        createNotificationChannel(this);
         initializeSharedPreferences();
+        configTaskRecycleViewer();
     }
 
     @Override
@@ -90,6 +89,13 @@ public class MainActivity extends AppCompatActivity {
         if (taskListQuerySubscriber != null) {
             taskListQuerySubscriber.dispose();
         }
+    }
+
+    private void configTaskRecycleViewer() {
+        taskListView = findViewById(R.id.recycler_task_list);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        taskListView.setLayoutManager(linearLayoutManager);
     }
 
     protected void initializeSharedPreferences() {
@@ -141,18 +147,19 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        this::setTaskRecyclerData,
+                        this::setTaskRecyclerViewData,
                         throwable -> displayToast(this, "Unable to fetch tasks")
                 );
     }
 
-    private void setTaskRecyclerData(List<Task> taskList) {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        taskListView.setLayoutManager(linearLayoutManager);
-
-        TaskListAdapter taskListAdapter = new TaskListAdapter(this, taskList, database);
-        taskListView.setAdapter(taskListAdapter);
+    private void setTaskRecyclerViewData(List<Task> taskList) {
+        TaskListAdapter taskListAdapter = (TaskListAdapter) taskListView.getAdapter();
+        if (taskListAdapter == null) {
+            taskListAdapter = new TaskListAdapter(this, taskList, database);
+            taskListView.setAdapter(taskListAdapter);
+        } else {
+            taskListAdapter.setData(taskList);
+        }
     }
 
     public void searchButtonOnClick(View view) {
