@@ -22,7 +22,7 @@ import com.project.todolist.db.AppDatabase;
 import com.project.todolist.db.dao.CategoryDao;
 import com.project.todolist.db.dao.TaskDao;
 import com.project.todolist.db.entity.Category;
-import com.project.todolist.db.entity.TaskWithCategory;
+import com.project.todolist.db.entity.Task;
 import com.project.todolist.interfaces.ResponseHandler;
 
 import java.util.List;
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchTasks(String titlePattern) {
         TaskDao taskDao = database.taskDao();
-        Single<List<TaskWithCategory>> taskList = taskDao.getTasks(titlePattern);
+        Single<List<Task>> taskList = taskDao.getTasks(titlePattern);
         taskListQuerySubscriber = taskList
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 );
     }
 
-    private void setTaskRecyclerData(List<TaskWithCategory> taskList) {
+    private void setTaskRecyclerData(List<Task> taskList) {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         taskListView.setLayoutManager(linearLayoutManager);

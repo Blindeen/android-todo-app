@@ -15,7 +15,6 @@ import com.project.todolist.R;
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.db.AppDatabase;
 import com.project.todolist.db.entity.Task;
-import com.project.todolist.db.entity.TaskWithCategory;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHolder> {
-    private final List<TaskWithCategory> data;
+    private final List<Task> data;
     private final AppDatabase database;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -42,7 +41,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         }
     }
 
-    public TaskListAdapter(List<TaskWithCategory> data, AppDatabase database) {
+    public TaskListAdapter(List<Task> data, AppDatabase database) {
         this.data = data;
         this.database = database;
     }
@@ -58,13 +57,16 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        TaskWithCategory taskWithCategory = data.get(position);
-        Task task = taskWithCategory.getTask();
+        Task task = data.get(position);
         CheckBox checkBox = viewHolder.getCheckBox();
         prepareView(checkBox, task);
 
         checkBox.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> checkBoxOnCheckedChanged(isChecked, taskWithCategory, viewHolder)
+                (buttonView, isChecked) -> checkBoxOnCheckedChanged(
+                        isChecked,
+                        task,
+                        viewHolder
+                )
         );
 
         LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.linear_layotu_row);
@@ -78,15 +80,14 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
     private void checkBoxOnCheckedChanged(
             boolean isChecked,
-            TaskWithCategory taskWithCategory,
+            Task task,
             ViewHolder viewHolder
     ) {
-        Task task = taskWithCategory.getTask();
         task.setDone(isChecked);
 
-        int oldPosition = data.indexOf(taskWithCategory);
-        data.sort((task1, task2) -> Boolean.compare(task1.getTask().isDone(), task2.getTask().isDone()));
-        int newPosition = data.indexOf(taskWithCategory);
+        int oldPosition = data.indexOf(task);
+        data.sort((task1, task2) -> Boolean.compare(task1.isDone(), task2.isDone()));
+        int newPosition = data.indexOf(task);
         if (oldPosition != newPosition) {
             viewHolder.itemView.post(() -> notifyItemMoved(oldPosition, newPosition));
         } else {
