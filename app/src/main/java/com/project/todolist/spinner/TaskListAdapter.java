@@ -23,8 +23,12 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.project.todolist.Utils.*;
+
 public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHolder> {
     private final List<Task> data;
+
+    private final Context context;
     private final AppDatabase database;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -41,7 +45,8 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         }
     }
 
-    public TaskListAdapter(List<Task> data, AppDatabase database) {
+    public TaskListAdapter(Context context, List<Task> data, AppDatabase database) {
+        this.context = context;
         this.data = data;
         this.database = database;
     }
@@ -102,7 +107,10 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         Disposable updateTaskQuerySubscriber = completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {}, throwable -> {});
+                .subscribe(
+                        () -> {},
+                        throwable -> displayToast(context, "Cannot update task state")
+                );
     }
 
     private void openAddEditActivity(Context context, Task task) {
