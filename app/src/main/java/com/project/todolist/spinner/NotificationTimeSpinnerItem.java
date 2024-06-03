@@ -1,4 +1,4 @@
-package com.project.todolist;
+package com.project.todolist.spinner;
 
 import androidx.annotation.NonNull;
 

@@ -1,4 +1,4 @@
-package com.project.todolist.adapter;
+package com.project.todolist.spinner;
 
 import android.content.Context;
 import android.content.Intent;

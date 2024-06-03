@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.activity.SettingsActivity;
-import com.project.todolist.adapter.TaskListAdapter;
+import com.project.todolist.spinner.TaskListAdapter;
 import com.project.todolist.db.AppDatabase;
 import com.project.todolist.db.dao.CategoryDao;
 import com.project.todolist.db.dao.TaskDao;

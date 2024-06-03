@@ -13,7 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.project.todolist.MainActivity;
-import com.project.todolist.NotificationTimeSpinnerItem;
+import com.project.todolist.spinner.NotificationTimeSpinnerItem;
 import com.project.todolist.R;
 import com.project.todolist.db.entity.Category;
 
