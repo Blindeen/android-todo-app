@@ -9,8 +9,12 @@ public class NotificationJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         String taskTitle = params.getExtras().getString("title");
-        showNotification(this, "Task Reminder", taskTitle);
-        return false;
+        new Thread(() -> {
+            showNotification(this, "Task Reminder", taskTitle);
+            jobFinished(params, false);
+        }).start();
+
+        return true;
     }
 
     @Override
