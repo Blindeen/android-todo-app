@@ -33,7 +33,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static com.project.todolist.Utils.displayToast;
-import static com.project.todolist.NotificationUtils.createNotificationChannel;
+import static com.project.todolist.notification.NotificationUtils.createNotificationChannel;
 
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;

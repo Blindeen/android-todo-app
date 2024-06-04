@@ -1,6 +1,4 @@
-package com.project.todolist;
-
-import static android.content.Context.JOB_SCHEDULER_SERVICE;
+package com.project.todolist.notification;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,8 +13,9 @@ import android.os.PersistableBundle;
 
 import androidx.core.app.NotificationCompat;
 
+import com.project.todolist.MainActivity;
+import com.project.todolist.R;
 import com.project.todolist.db.entity.Task;
-import com.project.todolist.jobservice.NotificationService;
 
 public class NotificationUtils {
     private static int notificationId = 0;
@@ -62,10 +61,10 @@ public class NotificationUtils {
 
     private static JobInfo createNotificationJobInfo(Context context, Task task) {
         int jobId = (int) task.getCategoryId();
+        String taskTitle = task.getTitle();
         PersistableBundle bundle = new PersistableBundle();
-        bundle.putString("title", task.getTitle());
-        return new JobInfo.Builder(jobId,
-                new ComponentName(context, NotificationService.class))
+        bundle.putString("title", taskTitle);
+        return new JobInfo.Builder(jobId, new ComponentName(context, NotificationJobService.class))
                 .setMinimumLatency(1000)
                 .setExtras(bundle)
                 .build();
@@ -74,7 +73,7 @@ public class NotificationUtils {
 
     public static void scheduleNotification(Context context, Task task) {
         JobInfo jobInfo = createNotificationJobInfo(context, task);
-        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
+        JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(jobInfo);
     }
 }
