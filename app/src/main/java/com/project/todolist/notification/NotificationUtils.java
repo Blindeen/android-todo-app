@@ -65,7 +65,7 @@ public class NotificationUtils {
         PersistableBundle bundle = new PersistableBundle();
         bundle.putString("title", taskTitle);
         return new JobInfo.Builder(jobId, new ComponentName(context, NotificationJobService.class))
-                .setMinimumLatency(1000)
+                .setMinimumLatency(15000)
                 .setExtras(bundle)
                 .build();
 
@@ -75,5 +75,10 @@ public class NotificationUtils {
         JobInfo jobInfo = createNotificationJobInfo(context, task);
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(jobInfo);
+    }
+
+    public void cancelNotification(Context context, Task task) {
+        JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
+        jobScheduler.cancel((int) task.getCategoryId());
     }
 }
