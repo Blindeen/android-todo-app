@@ -172,7 +172,7 @@ public class AddEditTaskActivity extends MainActivity {
     private boolean validateForm() {
         boolean isValid = true;
 
-        TextView[] inputWidgets = {titleInput, descriptionInput, dateTimeInput};
+        TextView[] inputWidgets = {titleInput, dateTimeInput};
         for (TextView widget : inputWidgets) {
             EditText etWidget = (EditText) widget;
             if (etWidget.length() == 0) {
