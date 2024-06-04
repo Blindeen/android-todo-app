@@ -1,7 +1,5 @@
 package com.project.todolist.activity;
 
-import static com.project.todolist.Utils.displayToast;
-
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -35,6 +33,9 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+
+import static com.project.todolist.Utils.displayToast;
+import static com.project.todolist.notification.NotificationUtils.*;
 
 public class AddEditTaskActivity extends MainActivity {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
@@ -71,7 +72,7 @@ public class AddEditTaskActivity extends MainActivity {
 
         initializeWidgets();
         Intent intent = getIntent();
-        Task task = (Task) intent.getSerializableExtra("task");
+        Task task = intent.getSerializableExtra("task", Task.class);
         configureForm(task);
     }
 
@@ -207,9 +208,9 @@ public class AddEditTaskActivity extends MainActivity {
         String description = descriptionInput.getText().toString();
         Category category = (Category) categorySpinner.getSelectedItem();
         String dateTime = dateTimeInput.getText().toString();
-        boolean isChecked = notificationCheckbox.isChecked();
+        boolean notification = notificationCheckbox.isChecked();
 
-        task = new Task(title, description, dateTime, isChecked, category.getCategoryId());
+        task = new Task(title, description, dateTime, notification, category.getCategoryId());
 
         Completable completable = database.taskDao().insertTask(
                 task.getTitle(),
@@ -225,6 +226,10 @@ public class AddEditTaskActivity extends MainActivity {
                     displayToast(this, "New task has been added successfully");
                     finish();
                 }, throwable -> displayToast(this, "Failed to add new task"));
+
+        if (notification) {
+            scheduleNotification(this, task);
+        }
     }
 
     private void updateTask() {
@@ -270,6 +275,10 @@ public class AddEditTaskActivity extends MainActivity {
                     displayToast(this, "Task has been deleted successfully");
                     finish();
                 }, throwable -> displayToast(this, "Failed to delete task"));
+
+        if (task.isNotification()) {
+            cancelNotification(this, task);
+        }
     }
 
     public void deleteButtonOnClick(View view) {

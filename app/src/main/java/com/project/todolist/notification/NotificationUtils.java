@@ -77,7 +77,7 @@ public class NotificationUtils {
         jobScheduler.schedule(jobInfo);
     }
 
-    public void cancelNotification(Context context, Task task) {
+    public static void cancelNotification(Context context, Task task) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.cancel((int) task.getCategoryId());
     }
