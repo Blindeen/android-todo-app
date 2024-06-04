@@ -64,7 +64,8 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Task task = data.get(position);
         CheckBox checkBox = viewHolder.getCheckBox();
-
+        checkBox.setOnCheckedChangeListener(null);
+        prepareView(checkBox, task);
         checkBox.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> checkBoxOnCheckedChanged(
                         isChecked,
@@ -72,8 +73,6 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
                         viewHolder
                 )
         );
-
-        prepareView(checkBox, task);
 
         LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.linear_layotu_row);
         linearLayout.setOnClickListener(v -> openAddEditActivity(v.getContext(), task));
