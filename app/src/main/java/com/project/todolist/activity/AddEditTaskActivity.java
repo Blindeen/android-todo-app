@@ -25,7 +25,6 @@ import com.project.todolist.db.entity.Task;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -34,7 +33,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.project.todolist.Utils.displayToast;
+import static com.project.todolist.Utils.*;
 import static com.project.todolist.notification.NotificationUtils.*;
 
 public class AddEditTaskActivity extends MainActivity {
@@ -158,7 +157,7 @@ public class AddEditTaskActivity extends MainActivity {
 
     private Calendar prepareCalendar(String completionDateString) {
         Calendar calendar = Calendar.getInstance();
-        LocalDateTime dateTime = parseDateTimePickerString(completionDateString);
+        LocalDateTime dateTime = parseDateTimePickerString(completionDateString, DATE_TIME_FORMATTER);
         if (dateTime != null) {
             calendar.set(Calendar.YEAR, dateTime.getYear());
             calendar.set(Calendar.MONTH, dateTime.getMonthValue() - 1);
@@ -168,14 +167,6 @@ public class AddEditTaskActivity extends MainActivity {
         }
 
         return calendar;
-    }
-
-    private LocalDateTime parseDateTimePickerString(String completionDateString) {
-        try {
-            return LocalDateTime.parse(completionDateString, DATE_TIME_FORMATTER);
-        } catch (DateTimeParseException e) {
-            return null;
-        }
     }
 
     private boolean validateForm() {
