@@ -1,11 +1,11 @@
-package com.project.todolist.db.dao;
+package com.project.todolist.database.dao;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.project.todolist.db.entity.Task;
+import com.project.todolist.database.entity.Task;
 
 import java.util.List;
 

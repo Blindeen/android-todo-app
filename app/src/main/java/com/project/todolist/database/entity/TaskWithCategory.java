@@ -1,4 +1,4 @@
-package com.project.todolist.db.entity;
+package com.project.todolist.database.entity;
 
 import androidx.room.Embedded;
 import androidx.room.Relation;

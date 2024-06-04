@@ -15,7 +15,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.project.todolist.MainActivity;
 import com.project.todolist.R;
-import com.project.todolist.db.entity.Task;
+import com.project.todolist.database.entity.Task;
 
 public class NotificationUtils {
     private static int notificationId = 0;

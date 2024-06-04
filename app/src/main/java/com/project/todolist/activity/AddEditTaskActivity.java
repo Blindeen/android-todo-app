@@ -20,8 +20,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.project.todolist.MainActivity;
 import com.project.todolist.R;
-import com.project.todolist.db.entity.Category;
-import com.project.todolist.db.entity.Task;
+import com.project.todolist.database.entity.Category;
+import com.project.todolist.database.entity.Task;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

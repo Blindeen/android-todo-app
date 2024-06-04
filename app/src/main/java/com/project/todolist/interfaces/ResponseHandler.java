@@ -1,6 +1,6 @@
 package com.project.todolist.interfaces;
 
-import com.project.todolist.db.entity.Category;
+import com.project.todolist.database.entity.Category;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.project.todolist.db;
+package com.project.todolist.database;
 
 import android.content.Context;
 
@@ -6,10 +6,10 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.project.todolist.db.dao.CategoryDao;
-import com.project.todolist.db.dao.TaskDao;
-import com.project.todolist.db.entity.Category;
-import com.project.todolist.db.entity.Task;
+import com.project.todolist.database.dao.CategoryDao;
+import com.project.todolist.database.dao.TaskDao;
+import com.project.todolist.database.entity.Category;
+import com.project.todolist.database.entity.Task;
 
 @Database(entities = {Task.class, Category.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {

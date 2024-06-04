@@ -1,4 +1,4 @@
-package com.project.todolist.db.entity;
+package com.project.todolist.database.entity;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;

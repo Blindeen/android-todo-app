@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.After;
@@ -12,14 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import com.project.todolist.database.AppDatabase;
+import com.project.todolist.database.dao.CategoryDao;
+import com.project.todolist.database.dao.TaskDao;
+import com.project.todolist.database.entity.Category;
 
-import com.project.todolist.db.AppDatabase;
-import com.project.todolist.db.dao.CategoryDao;
-import com.project.todolist.db.dao.TaskDao;
-import com.project.todolist.db.entity.Category;
-
-import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Single;

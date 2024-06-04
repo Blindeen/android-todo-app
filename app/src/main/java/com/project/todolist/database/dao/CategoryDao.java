@@ -1,10 +1,10 @@
-package com.project.todolist.db.dao;
+package com.project.todolist.database.dao;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.project.todolist.db.entity.Category;
+import com.project.todolist.database.entity.Category;
 
 import java.util.List;
 

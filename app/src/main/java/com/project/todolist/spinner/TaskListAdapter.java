@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.R;
 import com.project.todolist.activity.AddEditTaskActivity;
-import com.project.todolist.db.AppDatabase;
-import com.project.todolist.db.entity.Task;
+import com.project.todolist.database.AppDatabase;
+import com.project.todolist.database.entity.Task;
 
 import java.util.List;
 
