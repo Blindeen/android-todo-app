@@ -191,6 +191,11 @@ public class AddEditTaskActivity extends MainActivity {
             isValid = false;
         }
 
+        String dateTimeString = dateTimeInput.getText().toString();
+        if (!isDateTimeValid(dateTimeString, DATE_TIME_FORMATTER)) {
+            dateTimeInput.setError("Invalid date time value");
+        }
+
         return isValid;
     }
 

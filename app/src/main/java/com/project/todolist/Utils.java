@@ -19,4 +19,13 @@ public class Utils {
             return null;
         }
     }
+
+    public static boolean isDateTimeValid(String dateTime, DateTimeFormatter formatter) {
+        try {
+            LocalDateTime.parse(dateTime, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 }
