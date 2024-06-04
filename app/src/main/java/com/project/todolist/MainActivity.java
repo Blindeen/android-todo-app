@@ -1,7 +1,5 @@
 package com.project.todolist;
 
-import static com.project.todolist.Utils.displayToast;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -32,9 +30,10 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.project.todolist.Utils.*;
-
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import static com.project.todolist.Utils.displayToast;
+import static com.project.todolist.NotificationUtils.createNotificationChannel;
 
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
