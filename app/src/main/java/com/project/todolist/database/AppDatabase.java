@@ -2,16 +2,24 @@ package com.project.todolist.database;
 
 import android.content.Context;
 
+import androidx.room.AutoMigration;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.project.todolist.database.dao.CategoryDao;
 import com.project.todolist.database.dao.TaskDao;
+import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 
-@Database(entities = {Task.class, Category.class}, version = 2)
+@Database(
+        version = 3,
+        entities = {Task.class, Category.class, Attachment.class},
+        autoMigrations = {
+                @AutoMigration(from = 2, to = 3)
+        }
+)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract TaskDao taskDao();
     public abstract CategoryDao categoryDao();
