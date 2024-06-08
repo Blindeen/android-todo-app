@@ -40,12 +40,7 @@ public class Utils {
         LocalDateTime dateTimeValue = parseDateTimeString(dateTime, DATE_TIME_FORMATTER);
         ZonedDateTime zdt = ZonedDateTime.of(dateTimeValue, ZoneId.systemDefault());
         long millis = zdt.toInstant().toEpochMilli();
-        long latency = millis - System.currentTimeMillis() - periodBefore;
-        if (latency < 0) {
-            latency = 10;
-        }
-
-        return latency;
+        return millis - System.currentTimeMillis() - periodBefore;
     }
 
     public static Calendar prepareCalendar(String dateTimeString) {
