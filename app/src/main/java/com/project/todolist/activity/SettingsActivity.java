@@ -128,7 +128,7 @@ public class SettingsActivity extends MainActivity {
     private void saveAppPreferences() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.hide_done_tasks_key), hideDoneTasks);
-        editor.putInt(getString(R.string.notification_before_min_key), notificationBeforeCompletionMin);
+        editor.putLong(getString(R.string.notification_before_min_key), notificationBeforeCompletionMin);
         editor.putLong(getString(R.string.chosen_category_key), chosenCategory);
         editor.apply();
     }

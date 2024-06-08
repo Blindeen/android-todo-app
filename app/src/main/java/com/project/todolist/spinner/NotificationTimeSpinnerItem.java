@@ -4,14 +4,14 @@ import androidx.annotation.NonNull;
 
 public class NotificationTimeSpinnerItem {
     private final String displayString;
-    private final int value;
+    private final long value;
 
-    public NotificationTimeSpinnerItem(String displayString, int value) {
+    public NotificationTimeSpinnerItem(String displayString, long value) {
         this.displayString = displayString;
         this.value = value;
     }
 
-    public int getValue() {
+    public long getValue() {
         return value;
     }
 
