@@ -3,6 +3,8 @@ package com.project.todolist;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.TextView;
 
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private Disposable taskListQuerySubscriber;
 
     private String titlePattern = "%%";
+    private TextView searchInput;
     private RecyclerView taskListView;
 
     @Override
@@ -71,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         database = AppDatabase.getDatabase(this);
         createNotificationChannel(this);
         initializeSharedPreferences();
+        configSearchBar();
         configTaskRecycleViewer();
     }
 
@@ -78,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadAppPreferences();
-        fetchTasks(titlePattern);
+        fetchTasks();
     }
 
     @Override
@@ -88,6 +92,26 @@ public class MainActivity extends AppCompatActivity {
         if (taskListQuerySubscriber != null) {
             taskListQuerySubscriber.dispose();
         }
+    }
+
+    private void configSearchBar() {
+        searchInput = findViewById(R.id.input_search);
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                String searchInputValue = searchInput.getText().toString();
+                titlePattern = "%" + searchInputValue + "%";
+                fetchTasks();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        });
     }
 
     private void configTaskRecycleViewer() {
@@ -139,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 );
     }
 
-    private void fetchTasks(String titlePattern) {
+    private void fetchTasks() {
         TaskDao taskDao = database.taskDao();
         Single<List<Task>> taskList = taskDao.getTasks(titlePattern, hideDoneTasks, chosenCategory);
         taskListQuerySubscriber = taskList
@@ -159,12 +183,5 @@ public class MainActivity extends AppCompatActivity {
         } else {
             taskListAdapter.setData(taskList);
         }
-    }
-
-    public void searchButtonOnClick(View view) {
-        TextView searchInput = findViewById(R.id.input_search);
-        String searchInputValue = searchInput.getText().toString();
-        titlePattern = "%" + searchInputValue + "%";
-        fetchTasks(titlePattern);
     }
 }

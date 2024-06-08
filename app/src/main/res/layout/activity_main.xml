@@ -55,19 +55,6 @@
                     android:textColorHint="@color/apricot_cream"
                     android:textSize="@dimen/standard_font_size" />
 
-                <ImageButton
-                    android:id="@+id/button_search_task"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.15"
-                    android:background="@drawable/rounded_image_button"
-                    android:contentDescription="@string/search_button_content_description"
-                    android:onClick="searchButtonOnClick"
-                    android:scaleX="@dimen/search_icon_scale"
-                    android:scaleY="@dimen/search_icon_scale"
-                    android:src="@drawable/search_icon"
-                    app:tint="@color/white" />
-
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
