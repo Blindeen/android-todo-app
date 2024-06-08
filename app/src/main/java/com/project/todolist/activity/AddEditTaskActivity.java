@@ -24,7 +24,6 @@ import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
 
@@ -37,10 +36,6 @@ import static com.project.todolist.Utils.*;
 import static com.project.todolist.notification.NotificationUtils.*;
 
 public class AddEditTaskActivity extends MainActivity {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
-            "MMM dd, yyyy hh:mm a"
-    );
-
     private Task task;
     boolean isEdit = false;
 
@@ -155,20 +150,6 @@ public class AddEditTaskActivity extends MainActivity {
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    private Calendar prepareCalendar(String completionDateString) {
-        Calendar calendar = Calendar.getInstance();
-        LocalDateTime dateTime = parseDateTimePickerString(completionDateString, DATE_TIME_FORMATTER);
-        if (dateTime != null) {
-            calendar.set(Calendar.YEAR, dateTime.getYear());
-            calendar.set(Calendar.MONTH, dateTime.getMonthValue() - 1);
-            calendar.set(Calendar.DAY_OF_MONTH, dateTime.getDayOfMonth());
-            calendar.set(Calendar.HOUR_OF_DAY, dateTime.getHour());
-            calendar.set(Calendar.MINUTE, dateTime.getMinute());
-        }
-
-        return calendar;
-    }
-
     private boolean validateForm() {
         boolean isValid = true;
 
@@ -192,7 +173,7 @@ public class AddEditTaskActivity extends MainActivity {
         }
 
         String dateTimeString = dateTimeInput.getText().toString();
-        if (!isDateTimeValid(dateTimeString, DATE_TIME_FORMATTER)) {
+        if (!isDateTimeValid(dateTimeString)) {
             dateTimeInput.setError("Invalid date time value");
         }
 
@@ -222,10 +203,6 @@ public class AddEditTaskActivity extends MainActivity {
                     displayToast(this, "New task has been added successfully");
                     finish();
                 }, throwable -> displayToast(this, "Failed to add new task"));
-
-        if (notification) {
-            scheduleNotification(this, task);
-        }
     }
 
     private void updateTask() {
@@ -256,6 +233,16 @@ public class AddEditTaskActivity extends MainActivity {
         } else {
             createTask();
         }
+
+        cancelNotification(this, task);
+        if (notificationCheckbox.isChecked()) {
+            handleNotification(dateTimeInput.getText().toString());
+        }
+    }
+
+    private void handleNotification(String dateTime) {
+        long latency = calculateLatency(dateTime, notificationBeforeCompletionMs);
+        scheduleNotification(this, task, latency);
     }
 
     public void addButtonOnClick(View view) {

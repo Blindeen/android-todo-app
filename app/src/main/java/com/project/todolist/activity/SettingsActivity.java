@@ -85,7 +85,7 @@ public class SettingsActivity extends MainActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         notificationTimeSpinner.setAdapter(adapter);
 
-        int selectedItem = spinnerData.indexOf(new NotificationTimeSpinnerItem(null, notificationBeforeCompletionMin));
+        int selectedItem = spinnerData.indexOf(new NotificationTimeSpinnerItem(null, notificationBeforeCompletionMs));
         notificationTimeSpinner.setSelection(selectedItem);
     }
 
@@ -122,13 +122,13 @@ public class SettingsActivity extends MainActivity {
     private void handleNotificationTimeSpinner() {
         Spinner notificationTimeSpinner = findViewById(R.id.spinner_notification_time);
         NotificationTimeSpinnerItem item = (NotificationTimeSpinnerItem) notificationTimeSpinner.getSelectedItem();
-        notificationBeforeCompletionMin = item.getValue();
+        notificationBeforeCompletionMs = item.getValue();
     }
 
     private void saveAppPreferences() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.hide_done_tasks_key), hideDoneTasks);
-        editor.putLong(getString(R.string.notification_before_min_key), notificationBeforeCompletionMin);
+        editor.putLong(getString(R.string.notification_before_min_key), notificationBeforeCompletionMs);
         editor.putLong(getString(R.string.chosen_category_key), chosenCategory);
         editor.apply();
     }

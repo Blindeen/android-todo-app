@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     protected SharedPreferences sharedPreferences;
     protected boolean hideDoneTasks;
     protected Long chosenCategory;
-    protected Long notificationBeforeCompletionMin;
+    protected Long notificationBeforeCompletionMs;
 
     protected Disposable categoryListQuerySubscriber;
     private Disposable taskListQuerySubscriber;
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         if (chosenCategory == 0) {
             chosenCategory = CHOSEN_CATEGORY_ID_DEFAULT;
         }
-        notificationBeforeCompletionMin = sharedPreferences.getLong(
+        notificationBeforeCompletionMs = sharedPreferences.getLong(
                 getString(R.string.notification_before_min_key),
                 NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT
         );
