@@ -59,20 +59,20 @@ public class NotificationUtils {
         notificationManager.notify(notificationId++, notification);
     }
 
-    private static JobInfo createNotificationJobInfo(Context context, Task task) {
+    private static JobInfo createNotificationJobInfo(Context context, Task task, long latency) {
         int jobId = (int) task.getCategoryId();
         String taskTitle = task.getTitle();
         PersistableBundle bundle = new PersistableBundle();
         bundle.putString("title", taskTitle);
         return new JobInfo.Builder(jobId, new ComponentName(context, NotificationJobService.class))
-                .setMinimumLatency(15000)
+                .setMinimumLatency(latency)
                 .setExtras(bundle)
                 .build();
 
     }
 
-    public static void scheduleNotification(Context context, Task task) {
-        JobInfo jobInfo = createNotificationJobInfo(context, task);
+    public static void scheduleNotification(Context context, Task task, long latency) {
+        JobInfo jobInfo = createNotificationJobInfo(context, task, latency);
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(jobInfo);
     }
