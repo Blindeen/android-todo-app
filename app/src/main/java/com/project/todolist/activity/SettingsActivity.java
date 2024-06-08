@@ -92,10 +92,10 @@ public class SettingsActivity extends MainActivity {
     private ArrayList<NotificationTimeSpinnerItem> prepareNotificationTimeSpinnerData() {
         ArrayList<NotificationTimeSpinnerItem> spinnerItems = new ArrayList<>();
         spinnerItems.add(new NotificationTimeSpinnerItem("0 min", 0));
-        spinnerItems.add(new NotificationTimeSpinnerItem("5 min", 5));
-        spinnerItems.add(new NotificationTimeSpinnerItem("30 min", 30));
-        spinnerItems.add(new NotificationTimeSpinnerItem("1 h", 60));
-        spinnerItems.add(new NotificationTimeSpinnerItem("1 day", 1440));
+        spinnerItems.add(new NotificationTimeSpinnerItem("5 min", 300000));
+        spinnerItems.add(new NotificationTimeSpinnerItem("30 min", 1800000));
+        spinnerItems.add(new NotificationTimeSpinnerItem("1 h", 3600000));
+        spinnerItems.add(new NotificationTimeSpinnerItem("1 day", 86400000));
 
         return spinnerItems;
     }
