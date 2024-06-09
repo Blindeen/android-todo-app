@@ -26,7 +26,6 @@ import com.project.todolist.R;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
