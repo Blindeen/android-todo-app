@@ -15,6 +15,11 @@ import com.project.todolist.database.entity.Attachment;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class AttachmentListAdapter extends RecyclerView.Adapter<AttachmentListAdapter.ViewHolder> {
     private final List<Attachment> data;
 
@@ -57,12 +62,26 @@ public class AttachmentListAdapter extends RecyclerView.Adapter<AttachmentListAd
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
         Attachment attachment = data.get(position);
         TextView attachmentName = viewHolder.getAttachmentName();
+        ImageButton deleteAttachmentButton = viewHolder.getDeleteAttachmentButton();
 
         attachmentName.setText(attachment.getName());
+        deleteAttachmentButton.setOnClickListener(v -> deleteAttachment(attachment));
     }
 
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    private void deleteAttachment(Attachment attachment) {
+        Completable completable = database.attachmentDao().deleteAttachment(attachment);
+        Disposable disposable = completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    int position = data.indexOf(attachment);
+                    data.remove(attachment);
+                    notifyItemRemoved(position);
+                });
     }
 }
