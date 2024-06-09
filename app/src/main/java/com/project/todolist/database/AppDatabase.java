@@ -7,6 +7,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.project.todolist.database.dao.AttachmentDao;
 import com.project.todolist.database.dao.CategoryDao;
 import com.project.todolist.database.dao.TaskDao;
 import com.project.todolist.database.entity.Attachment;
@@ -23,6 +24,7 @@ import com.project.todolist.database.entity.Task;
 public abstract class AppDatabase extends RoomDatabase {
     public abstract TaskDao taskDao();
     public abstract CategoryDao categoryDao();
+    public abstract AttachmentDao attachmentDao();
 
     private static volatile AppDatabase INSTANCE;
 
