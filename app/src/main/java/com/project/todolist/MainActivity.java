@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         responseHandler::handle,
-                        throwable -> displayToast(this, "Error: It was not possible to fetch categories")
+                        throwable -> displayToast(this, "Unable to fetch categories")
                 );
     }
 
