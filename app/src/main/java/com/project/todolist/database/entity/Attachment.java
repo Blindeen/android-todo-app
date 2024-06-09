@@ -3,8 +3,10 @@ package com.project.todolist.database.entity;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity
-public class Attachment {
+public class Attachment implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private long attachmentId;
     private String name;
