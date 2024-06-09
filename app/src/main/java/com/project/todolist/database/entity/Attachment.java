@@ -7,6 +7,15 @@ import java.io.Serializable;
 
 @Entity
 public class Attachment implements Serializable {
+    public Attachment() {
+    }
+
+    public Attachment(String name, String path, Long taskId) {
+        this.name = name;
+        this.path = path;
+        this.taskId = taskId;
+    }
+
     @PrimaryKey(autoGenerate = true)
     private long attachmentId;
     private String name;
@@ -25,7 +34,7 @@ public class Attachment implements Serializable {
         return path;
     }
 
-    public long getTaskId() {
+    public Long getTaskId() {
         return taskId;
     }
 
@@ -41,7 +50,7 @@ public class Attachment implements Serializable {
         this.path = path;
     }
 
-    public void setTaskId(long taskId) {
+    public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 }

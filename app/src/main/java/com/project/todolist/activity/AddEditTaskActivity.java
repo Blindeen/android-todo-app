@@ -4,6 +4,7 @@ import static com.project.todolist.Utils.DATE_TIME_FORMATTER;
 import static com.project.todolist.Utils.calculateLatency;
 import static com.project.todolist.Utils.copyFile;
 import static com.project.todolist.Utils.displayToast;
+import static com.project.todolist.Utils.getFilenameWithExtension;
 import static com.project.todolist.Utils.isDateTimeValid;
 import static com.project.todolist.Utils.prepareCalendar;
 import static com.project.todolist.notification.NotificationUtils.cancelNotification;
@@ -62,6 +63,8 @@ public class AddEditTaskActivity extends MainActivity {
 
     private Disposable taskQuerySubscriber;
     private Disposable deleteTaskQuerySubscriber;
+    private Disposable attachmentListQuerySubscriber;
+    private Disposable addAttachmentQuerySubscriber;
 
     private ActivityResultLauncher<Intent> filePickerLauncher;
 
@@ -91,17 +94,17 @@ public class AddEditTaskActivity extends MainActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (categoryListQuerySubscriber != null) {
-            categoryListQuerySubscriber.dispose();
-        }
-
-        if (taskQuerySubscriber != null) {
-            taskQuerySubscriber.dispose();
-        }
-
-        if (deleteTaskQuerySubscriber != null) {
-            deleteTaskQuerySubscriber.dispose();
+        Disposable[] disposables = {
+                categoryListQuerySubscriber,
+                taskQuerySubscriber,
+                deleteTaskQuerySubscriber,
+                attachmentListQuerySubscriber,
+                addAttachmentQuerySubscriber
+        };
+        for (Disposable disposable : disposables) {
+            if (disposable != null && !disposable.isDisposed()) {
+                disposable.dispose();
+            }
         }
     }
 
@@ -148,7 +151,7 @@ public class AddEditTaskActivity extends MainActivity {
 
         headerLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
         deleteButton.setVisibility(isEdit ? View.VISIBLE : View.GONE);
-        configTaskCompletionPicker();
+        dateTimeInput.setOnClickListener(v -> showDateTimePicker());
     }
 
     private void setCategorySpinnerData(List<Category> categoryList) {
@@ -163,10 +166,6 @@ public class AddEditTaskActivity extends MainActivity {
         attachmentRecyclerView.setAdapter(adapter);
     }
 
-    private void configTaskCompletionPicker() {
-        dateTimeInput.setOnClickListener(v -> showDateTimePicker());
-    }
-
     private void configFilePicker() {
         filePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -178,6 +177,8 @@ public class AddEditTaskActivity extends MainActivity {
                         }
                         Uri uri = data.getData();
                         copyFile(this, uri);
+                        Attachment attachment = createAttachment(uri, task);
+                        addAttachment(attachment);
                     }
                 });
     }
@@ -326,6 +327,33 @@ public class AddEditTaskActivity extends MainActivity {
     }
 
     public void attachFileButtonOnClick(View view) {
+        if (!isEdit && !validateForm()) {
+            return;
+        }
         showFilePicker();
+    }
+
+    private Attachment createAttachment(Uri uri, Task task) {
+        String filenameWithExtension = getFilenameWithExtension(this, uri);
+        String pathname = getFilesDir() + "/" + filenameWithExtension;
+        return new Attachment(filenameWithExtension, pathname, task.getTaskId());
+    }
+
+    private void addAttachment(Attachment attachment) {
+        Completable completable = database.attachmentDao().insertAttachment(attachment);
+        addAttachmentQuerySubscriber = completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    displayToast(this, "Attachment has been added successfully");
+                    fetchAttachments();
+                }, throwable -> displayToast(this, "Failed to add attachment"));
+    }
+
+    private void fetchAttachments() {
+        attachmentListQuerySubscriber = database.attachmentDao().getAttachmentsByTaskId(task.getTaskId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::setAttachmentRecyclerViewData);
     }
 }
