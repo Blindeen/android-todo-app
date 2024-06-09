@@ -1,5 +1,7 @@
 package com.project.todolist.activity;
 
+import static com.project.todolist.utils.Utils.displayToast;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -13,11 +15,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.project.todolist.MainActivity;
-import com.project.todolist.spinner.NotificationTimeSpinnerItem;
 import com.project.todolist.R;
 import com.project.todolist.database.entity.Category;
-
-import static com.project.todolist.Utils.*;
+import com.project.todolist.spinner.NotificationTimeSpinnerItem;
 
 import java.util.ArrayList;
 import java.util.List;

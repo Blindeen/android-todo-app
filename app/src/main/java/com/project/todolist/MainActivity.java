@@ -1,7 +1,7 @@
 package com.project.todolist;
 
-import static com.project.todolist.Utils.displayToast;
 import static com.project.todolist.notification.NotificationUtils.createNotificationChannel;
+import static com.project.todolist.utils.Utils.displayToast;
 
 import android.content.Intent;
 import android.content.SharedPreferences;

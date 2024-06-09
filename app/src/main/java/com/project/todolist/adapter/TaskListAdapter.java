@@ -1,6 +1,6 @@
 package com.project.todolist.adapter;
 
-import static com.project.todolist.Utils.displayToast;
+import static com.project.todolist.utils.Utils.displayToast;
 
 import android.content.Context;
 import android.content.Intent;
