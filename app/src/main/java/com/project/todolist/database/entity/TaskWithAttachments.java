@@ -1,10 +1,12 @@
 package com.project.todolist.database.entity;
 
+import androidx.room.Embedded;
 import androidx.room.Relation;
 
 import java.util.List;
 
 public class TaskWithAttachments {
+    @Embedded
     private Task task;
 
     @Relation(
