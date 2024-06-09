@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.project.todolist.R;
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.database.AppDatabase;
+import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
 
@@ -34,15 +36,19 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final CheckBox checkBox;
+        private final ImageView attachmentIcon;
 
         public ViewHolder(View view) {
             super(view);
-
             checkBox = view.findViewById(R.id.checkBox);
+            attachmentIcon = view.findViewById(R.id.image_attachment);
         }
 
         public CheckBox getCheckBox() {
             return checkBox;
+        }
+        public ImageView getAttachmentIcon() {
+            return attachmentIcon;
         }
     }
 
@@ -64,10 +70,10 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         TaskWithAttachments taskWithAttachments = data.get(position);
-        Task task = taskWithAttachments.getTask();
         CheckBox checkBox = viewHolder.getCheckBox();
+        ImageView attachmentIcon = viewHolder.getAttachmentIcon();
         checkBox.setOnCheckedChangeListener(null);
-        prepareView(checkBox, task);
+        prepareView(checkBox, attachmentIcon, taskWithAttachments);
         checkBox.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> checkBoxOnCheckedChanged(
                         isChecked,
@@ -85,9 +91,12 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         return data.size();
     }
 
-    private void prepareView(CheckBox checkBox, Task task) {
+    private void prepareView(CheckBox checkBox, ImageView attachmentIcon, TaskWithAttachments taskWithAttachments) {
+        Task task = taskWithAttachments.getTask();
+        List<Attachment> attachments = taskWithAttachments.getAttachments();
         checkBox.setText(task.toString());
         checkBox.setChecked(task.isDone());
+        attachmentIcon.setVisibility(attachments.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     private void checkBoxOnCheckedChanged(
