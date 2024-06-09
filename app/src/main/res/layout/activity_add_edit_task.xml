@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -121,9 +122,20 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="end"
+                android:gravity="center|end"
                 android:orientation="horizontal"
                 android:paddingVertical="@dimen/form_element_v_padding">
+
+                <ImageButton
+                    android:id="@+id/imageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#00FFFFFF"
+                    app:srcCompat="@drawable/attach_file_icon" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="match_parent" />
 
                 <Button
                     android:id="@+id/button_delete"
