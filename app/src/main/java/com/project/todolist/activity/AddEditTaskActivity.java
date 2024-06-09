@@ -29,12 +29,16 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.MainActivity;
 import com.project.todolist.R;
+import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
+import com.project.todolist.spinner.AttachmentListAdapter;
 
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -54,6 +58,7 @@ public class AddEditTaskActivity extends MainActivity {
     private Spinner categorySpinner;
     private CheckBox notificationCheckbox;
     private Button deleteButton;
+    private RecyclerView attachmentRecyclerView;
 
     private Disposable taskQuerySubscriber;
     private Disposable deleteTaskQuerySubscriber;
@@ -79,8 +84,7 @@ public class AddEditTaskActivity extends MainActivity {
         initializeWidgets();
         Intent intent = getIntent();
         TaskWithAttachments taskWithAttachments = intent.getSerializableExtra("task", TaskWithAttachments.class);
-        Task task = taskWithAttachments != null ? taskWithAttachments.getTask() : null;
-        configureForm(task);
+        configureForm(taskWithAttachments);
         configFilePicker();
     }
 
@@ -109,10 +113,20 @@ public class AddEditTaskActivity extends MainActivity {
         dateTimeInput = findViewById(R.id.text_completion_date);
         notificationCheckbox = findViewById(R.id.checkbox_notification);
         deleteButton = findViewById(R.id.button_delete);
+        configAttachmentRecycleViewer();
     }
 
-    private void configureForm(Task task) {
-        if (task != null) {
+    private void configAttachmentRecycleViewer() {
+        attachmentRecyclerView = findViewById(R.id.recycler_attachment_list);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        attachmentRecyclerView.setLayoutManager(linearLayoutManager);
+    }
+
+    private void configureForm(TaskWithAttachments taskWithAttachments) {
+        if (taskWithAttachments != null) {
+            Task task = taskWithAttachments.getTask();
+            List<Attachment> attachments = taskWithAttachments.getAttachments();
             this.task = task;
             isEdit = true;
 
@@ -126,6 +140,8 @@ public class AddEditTaskActivity extends MainActivity {
                 int position = categoryList.indexOf(new Category(task.getCategoryId(), ""));
                 categorySpinner.setSelection(position);
             });
+
+            setAttachmentRecyclerViewData(attachments);
         } else {
             fetchCategories(this::setCategorySpinnerData);
         }
@@ -140,6 +156,11 @@ public class AddEditTaskActivity extends MainActivity {
         ArrayAdapter<Category> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, categoryList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
+    }
+
+    private void setAttachmentRecyclerViewData(List<Attachment> attachments) {
+        AttachmentListAdapter adapter = new AttachmentListAdapter(attachments, database);
+        attachmentRecyclerView.setAdapter(adapter);
     }
 
     private void configTaskCompletionPicker() {
