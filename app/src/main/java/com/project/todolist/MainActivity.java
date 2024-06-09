@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     private Disposable taskListQuerySubscriber;
 
     private String titlePattern = "%%";
-    private TextView searchInput;
     private RecyclerView taskListView;
 
     @Override
@@ -88,17 +87,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (taskListQuerySubscriber != null) {
+        if (taskListQuerySubscriber != null && !taskListQuerySubscriber.isDisposed()) {
             taskListQuerySubscriber.dispose();
         }
     }
 
     private void configSearchBar() {
-        searchInput = findViewById(R.id.input_search);
+        TextView searchInput = findViewById(R.id.input_search);
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                String searchInputValue = searchInput.getText().toString();
+                String searchInputValue = s.toString();
                 titlePattern = "%" + searchInputValue + "%";
                 fetchTasks();
             }
