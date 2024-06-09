@@ -9,6 +9,7 @@ public class Attachment {
     private long attachmentId;
     private String name;
     private String path;
+    private Long taskId;
 
     public long getAttachmentId() {
         return attachmentId;
@@ -22,6 +23,10 @@ public class Attachment {
         return path;
     }
 
+    public long getTaskId() {
+        return taskId;
+    }
+
     public void setAttachmentId(long attachmentId) {
         this.attachmentId = attachmentId;
     }
@@ -32,5 +37,9 @@ public class Attachment {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public void setTaskId(long taskId) {
+        this.taskId = taskId;
     }
 }

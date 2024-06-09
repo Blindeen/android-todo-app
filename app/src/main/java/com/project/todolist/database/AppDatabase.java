@@ -14,10 +14,10 @@ import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 
 @Database(
-        version = 3,
+        version = 4,
         entities = {Task.class, Category.class, Attachment.class},
         autoMigrations = {
-                @AutoMigration(from = 2, to = 3)
+                @AutoMigration(from = 3, to = 4)
         }
 )
 public abstract class AppDatabase extends RoomDatabase {
