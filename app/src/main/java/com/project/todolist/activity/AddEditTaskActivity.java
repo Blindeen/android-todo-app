@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -14,6 +15,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -23,6 +26,7 @@ import com.project.todolist.R;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
@@ -48,6 +52,8 @@ public class AddEditTaskActivity extends MainActivity {
     private Disposable taskQuerySubscriber;
     private Disposable deleteTaskQuerySubscriber;
 
+    private ActivityResultLauncher<Intent> filePickerLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +74,7 @@ public class AddEditTaskActivity extends MainActivity {
         Intent intent = getIntent();
         Task task = intent.getSerializableExtra("task", Task.class);
         configureForm(task);
+        configFilePicker();
     }
 
     @Override
@@ -130,6 +137,21 @@ public class AddEditTaskActivity extends MainActivity {
 
     private void configTaskCompletionPicker() {
         dateTimeInput.setOnClickListener(v -> showDateTimePicker());
+    }
+
+    private void configFilePicker() {
+        filePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data == null || data.getData() == null) {
+                            return;
+                        }
+                        Uri uri = data.getData();
+                        copyFile(this, uri);
+                    }
+                });
     }
 
     private void showDateTimePicker() {
@@ -266,5 +288,16 @@ public class AddEditTaskActivity extends MainActivity {
 
     public void deleteButtonOnClick(View view) {
         deleteTask();
+    }
+
+    private void showFilePicker() {
+        Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+        chooseFile.setType("*/*");
+        chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+        filePickerLauncher.launch(chooseFile);
+    }
+
+    public void attachFileButtonOnClick(View view) {
+        showFilePicker();
     }
 }
