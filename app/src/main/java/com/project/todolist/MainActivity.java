@@ -21,13 +21,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.activity.SettingsActivity;
+import com.project.todolist.adapter.TaskListAdapter;
 import com.project.todolist.database.AppDatabase;
 import com.project.todolist.database.dao.CategoryDao;
 import com.project.todolist.database.dao.TaskDao;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.TaskWithAttachments;
 import com.project.todolist.interfaces.ResponseHandler;
-import com.project.todolist.spinner.TaskListAdapter;
 
 import java.util.List;
 

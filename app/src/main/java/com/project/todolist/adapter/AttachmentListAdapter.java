@@ -1,4 +1,4 @@
-package com.project.todolist.spinner;
+package com.project.todolist.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

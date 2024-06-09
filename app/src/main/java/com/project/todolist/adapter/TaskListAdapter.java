@@ -1,4 +1,4 @@
-package com.project.todolist.spinner;
+package com.project.todolist.adapter;
 
 import static com.project.todolist.Utils.displayToast;
 

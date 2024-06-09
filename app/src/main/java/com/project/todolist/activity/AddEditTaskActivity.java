@@ -35,11 +35,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.MainActivity;
 import com.project.todolist.R;
+import com.project.todolist.adapter.AttachmentListAdapter;
 import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
-import com.project.todolist.spinner.AttachmentListAdapter;
 
 import java.time.LocalDateTime;
 import java.util.Calendar;
