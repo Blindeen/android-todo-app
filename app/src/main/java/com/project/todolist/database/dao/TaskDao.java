@@ -6,6 +6,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.project.todolist.database.entity.Task;
+import com.project.todolist.database.entity.TaskWithAttachments;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface TaskDao {
             "AND (categoryId = :categoryId OR :categoryId IS NULL) " +
             "ORDER BY isDone, doneAt"
     )
-    Single<List<Task>> getTasks(String titlePattern, boolean hideDone, Long categoryId);
+    Single<List<TaskWithAttachments>> getTasks(String titlePattern, boolean hideDone, Long categoryId);
 
     @Query(
             "INSERT INTO Task (title, description, doneAt, categoryId, notification)" +

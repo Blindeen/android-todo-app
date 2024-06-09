@@ -3,9 +3,10 @@ package com.project.todolist.database.entity;
 import androidx.room.Embedded;
 import androidx.room.Relation;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class TaskWithAttachments {
+public class TaskWithAttachments implements Serializable {
     @Embedded
     private Task task;
 

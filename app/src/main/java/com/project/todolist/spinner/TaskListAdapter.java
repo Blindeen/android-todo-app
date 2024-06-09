@@ -1,5 +1,7 @@
 package com.project.todolist.spinner;
 
+import static com.project.todolist.Utils.displayToast;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import com.project.todolist.R;
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.database.AppDatabase;
 import com.project.todolist.database.entity.Task;
+import com.project.todolist.database.entity.TaskWithAttachments;
 
 import java.util.List;
 
@@ -23,10 +26,8 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.project.todolist.Utils.*;
-
 public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHolder> {
-    private final List<Task> data;
+    private final List<TaskWithAttachments> data;
 
     private final Context context;
     private final AppDatabase database;
@@ -45,7 +46,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         }
     }
 
-    public TaskListAdapter(Context context, List<Task> data, AppDatabase database) {
+    public TaskListAdapter(Context context, List<TaskWithAttachments> data, AppDatabase database) {
         this.context = context;
         this.data = data;
         this.database = database;
@@ -62,20 +63,21 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        Task task = data.get(position);
+        TaskWithAttachments taskWithAttachments = data.get(position);
+        Task task = taskWithAttachments.getTask();
         CheckBox checkBox = viewHolder.getCheckBox();
         checkBox.setOnCheckedChangeListener(null);
         prepareView(checkBox, task);
         checkBox.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> checkBoxOnCheckedChanged(
                         isChecked,
-                        task,
+                        taskWithAttachments,
                         viewHolder
                 )
         );
 
         LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.linear_layotu_row);
-        linearLayout.setOnClickListener(v -> openAddEditActivity(v.getContext(), task));
+        linearLayout.setOnClickListener(v -> openAddEditActivity(v.getContext(), taskWithAttachments));
     }
 
     @Override
@@ -90,14 +92,15 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
     private void checkBoxOnCheckedChanged(
             boolean isChecked,
-            Task task,
+            TaskWithAttachments taskWithAttachments,
             ViewHolder viewHolder
     ) {
+        Task task = taskWithAttachments.getTask();
         task.setDone(isChecked);
 
-        int oldPosition = data.indexOf(task);
-        data.sort((task1, task2) -> Boolean.compare(task1.isDone(), task2.isDone()));
-        int newPosition = data.indexOf(task);
+        int oldPosition = data.indexOf(taskWithAttachments);
+        data.sort((task1, task2) -> Boolean.compare(task1.getTask().isDone(), task2.getTask().isDone()));
+        int newPosition = data.indexOf(taskWithAttachments);
         if (oldPosition != newPosition) {
             viewHolder.itemView.post(() -> notifyItemMoved(oldPosition, newPosition));
         } else {
@@ -118,13 +121,13 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
                 );
     }
 
-    private void openAddEditActivity(Context context, Task task) {
+    private void openAddEditActivity(Context context, TaskWithAttachments task) {
         Intent intent = new Intent(context, AddEditTaskActivity.class);
         intent.putExtra("task", task);
         context.startActivity(intent);
     }
 
-    public void setData(List<Task> data) {
+    public void setData(List<TaskWithAttachments> data) {
         this.data.clear();
         this.data.addAll(data);
         notifyDataSetChanged();

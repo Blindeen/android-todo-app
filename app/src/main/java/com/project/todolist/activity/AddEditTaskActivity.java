@@ -1,5 +1,14 @@
 package com.project.todolist.activity;
 
+import static com.project.todolist.Utils.DATE_TIME_FORMATTER;
+import static com.project.todolist.Utils.calculateLatency;
+import static com.project.todolist.Utils.copyFile;
+import static com.project.todolist.Utils.displayToast;
+import static com.project.todolist.Utils.isDateTimeValid;
+import static com.project.todolist.Utils.prepareCalendar;
+import static com.project.todolist.notification.NotificationUtils.cancelNotification;
+import static com.project.todolist.notification.NotificationUtils.scheduleNotification;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -25,6 +34,7 @@ import com.project.todolist.MainActivity;
 import com.project.todolist.R;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
+import com.project.todolist.database.entity.TaskWithAttachments;
 
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -34,9 +44,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import static com.project.todolist.Utils.*;
-import static com.project.todolist.notification.NotificationUtils.*;
 
 public class AddEditTaskActivity extends MainActivity {
     private Task task;
@@ -71,7 +78,8 @@ public class AddEditTaskActivity extends MainActivity {
 
         initializeWidgets();
         Intent intent = getIntent();
-        Task task = intent.getSerializableExtra("task", Task.class);
+        TaskWithAttachments taskWithAttachments = intent.getSerializableExtra("task", TaskWithAttachments.class);
+        Task task = taskWithAttachments != null ? taskWithAttachments.getTask() : null;
         configureForm(task);
         configFilePicker();
     }

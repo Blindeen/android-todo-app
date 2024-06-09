@@ -1,5 +1,8 @@
 package com.project.todolist;
 
+import static com.project.todolist.Utils.displayToast;
+import static com.project.todolist.notification.NotificationUtils.createNotificationChannel;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,17 +16,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.activity.SettingsActivity;
-import com.project.todolist.spinner.TaskListAdapter;
 import com.project.todolist.database.AppDatabase;
 import com.project.todolist.database.dao.CategoryDao;
 import com.project.todolist.database.dao.TaskDao;
 import com.project.todolist.database.entity.Category;
-import com.project.todolist.database.entity.Task;
+import com.project.todolist.database.entity.TaskWithAttachments;
 import com.project.todolist.interfaces.ResponseHandler;
+import com.project.todolist.spinner.TaskListAdapter;
 
 import java.util.List;
 
@@ -31,11 +35,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import static com.project.todolist.Utils.displayToast;
-import static com.project.todolist.notification.NotificationUtils.createNotificationChannel;
 
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
@@ -165,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchTasks() {
         TaskDao taskDao = database.taskDao();
-        Single<List<Task>> taskList = taskDao.getTasks(titlePattern, hideDoneTasks, chosenCategory);
+        Single<List<TaskWithAttachments>> taskList = taskDao.getTasks(titlePattern, hideDoneTasks, chosenCategory);
         taskListQuerySubscriber = taskList
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 );
     }
 
-    private void setTaskRecyclerViewData(List<Task> taskList) {
+    private void setTaskRecyclerViewData(List<TaskWithAttachments> taskList) {
         TaskListAdapter taskListAdapter = (TaskListAdapter) taskListView.getAdapter();
         if (taskListAdapter == null) {
             taskListAdapter = new TaskListAdapter(this, taskList, database);
