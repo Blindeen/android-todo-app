@@ -64,10 +64,15 @@ public class Utils {
         return calendar;
     }
 
+    public static String getFilenameWithExtension(Context context, Uri uri) {
+        String filename = uri.getLastPathSegment();
+        String fileExtension = getFileExtension(context, uri);
+        return filename + fileExtension;
+    }
+
     public static void copyFile(Context context, Uri sourceUri) {
-        String sourceFilename = sourceUri.getLastPathSegment();
-        String fileExtension = getFileExtension(context, sourceUri);
-        String pathname = context.getFilesDir() + "/" + sourceFilename + fileExtension;
+        String filenameWithExtension = getFilenameWithExtension(context, sourceUri);
+        String pathname = context.getFilesDir() + "/" + filenameWithExtension;
         File destinationFile = new File(pathname);
 
         try (InputStream in = context.getContentResolver().openInputStream(sourceUri);
