@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,14 +28,14 @@ import java.util.List;
 import io.reactivex.rxjava3.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
-    protected DatabaseManager databaseManager;
+    private DatabaseManager databaseManager;
     private AppPreferences appPreferences;
-
-    protected Disposable categoryListQuerySubscriber;
     private Disposable taskListQuerySubscriber;
 
     private String titlePattern = "%%";
-    private RecyclerView taskListView;
+    private EditText etSearchInput;
+    private RecyclerView rvTaskList;
+    private TaskListAdapter rvTaskListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         databaseManager = new DatabaseManager(this);
         appPreferences = new AppPreferences(this);
         createNotificationChannel(this);
+
+        initializeWidgets();
         configSearchBar();
         configTaskRecycleViewer();
     }
@@ -75,17 +77,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Disposable[] disposables = {categoryListQuerySubscriber, taskListQuerySubscriber};
-        for (Disposable disposable : disposables) {
-            if (disposable != null && !disposable.isDisposed()) {
-                disposable.dispose();
-            }
+        if (taskListQuerySubscriber != null && !taskListQuerySubscriber.isDisposed()) {
+            taskListQuerySubscriber.dispose();
         }
     }
 
+    private void initializeWidgets() {
+        etSearchInput = findViewById(R.id.input_search);
+        rvTaskList = findViewById(R.id.recycler_task_list);
+    }
+
     private void configSearchBar() {
-        TextView searchInput = findViewById(R.id.input_search);
-        searchInput.addTextChangedListener(new TextWatcher() {
+        etSearchInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 String searchInputValue = s.toString();
@@ -109,10 +112,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configTaskRecycleViewer() {
-        taskListView = findViewById(R.id.recycler_task_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        taskListView.setLayoutManager(linearLayoutManager);
+        rvTaskList.setLayoutManager(linearLayoutManager);
     }
 
     public void addTaskButtonOnClick(View view) {
@@ -129,12 +131,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setTaskRecyclerViewData(List<TaskWithAttachments> taskList) {
-        TaskListAdapter taskListAdapter = (TaskListAdapter) taskListView.getAdapter();
-        if (taskListAdapter == null) {
-            taskListAdapter = new TaskListAdapter(this, taskList);
-            taskListView.setAdapter(taskListAdapter);
+        if (rvTaskListAdapter == null) {
+            rvTaskListAdapter = new TaskListAdapter(this, taskList);
+            rvTaskList.setAdapter(rvTaskListAdapter);
         } else {
-            taskListAdapter.setData(taskList);
+            rvTaskListAdapter.setData(taskList);
         }
     }
 }
