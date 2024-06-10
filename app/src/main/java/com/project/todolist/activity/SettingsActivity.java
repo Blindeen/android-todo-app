@@ -31,8 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Disposable categoryListQuerySubscriber;
 
     private CheckBox cbHideDoneTasks;
-    private Spinner sCategory;
-    private Spinner sNotificationTime;
+    private Spinner sCategory, sNotificationTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,6 +1,5 @@
 package com.project.todolist.activity;
 
-
 import static com.project.todolist.notification.NotificationUtils.cancelNotification;
 import static com.project.todolist.notification.NotificationUtils.scheduleNotification;
 import static com.project.todolist.utils.FileUtils.copyFile;
@@ -54,24 +53,19 @@ import io.reactivex.rxjava3.disposables.Disposable;
 public class AddEditTaskActivity extends AppCompatActivity {
     private DatabaseManager databaseManager;
     private AppPreferences appPreferences;
+    private Disposable categoryListQuerySubscriber, taskQuerySubscriber, deleteTaskQuerySubscriber,
+            attachmentListQuerySubscriber, addAttachmentQuerySubscriber;
 
     private Task task;
     boolean isEdit = false;
 
-    private TextView headerLabel;
-    private EditText titleInput, descriptionInput, dateTimeInput;
-    private Spinner categorySpinner;
-    private CheckBox notificationCheckbox;
-    private Button deleteButton;
-
-    private RecyclerView attachmentRecyclerView;
+    private TextView tvHeaderLabel;
+    private EditText etTitleInput, etDescriptionInput, etDateTimeInput;
+    private Spinner sCategory;
+    private CheckBox cbNotification;
+    private Button bDelete;
+    private RecyclerView rvAttachmentList;
     private AttachmentListAdapter attachmentListAdapter;
-
-    private Disposable categoryListQuerySubscriber;
-    private Disposable taskQuerySubscriber;
-    private Disposable deleteTaskQuerySubscriber;
-    private Disposable attachmentListQuerySubscriber;
-    private Disposable addAttachmentQuerySubscriber;
 
     private ActivityResultLauncher<Intent> filePickerLauncher;
 
@@ -94,8 +88,8 @@ public class AddEditTaskActivity extends AppCompatActivity {
         databaseManager = new DatabaseManager(this);
         appPreferences = new AppPreferences(this);
         initializeWidgets();
-        Intent intent = getIntent();
-        TaskWithAttachments taskWithAttachments = intent.getSerializableExtra("task", TaskWithAttachments.class);
+        configAttachmentRecycleViewer();
+        TaskWithAttachments taskWithAttachments = retrieveTask();
         configureForm(taskWithAttachments);
         configFilePicker();
     }
@@ -118,21 +112,25 @@ public class AddEditTaskActivity extends AppCompatActivity {
     }
 
     private void initializeWidgets() {
-        headerLabel = findViewById(R.id.text_add_edit_header);
-        titleInput = findViewById(R.id.text_task_title);
-        descriptionInput = findViewById(R.id.text_task_description);
-        categorySpinner = findViewById(R.id.spinner_category);
-        dateTimeInput = findViewById(R.id.text_completion_date);
-        notificationCheckbox = findViewById(R.id.checkbox_notification);
-        deleteButton = findViewById(R.id.button_delete);
-        configAttachmentRecycleViewer();
+        tvHeaderLabel = findViewById(R.id.text_add_edit_header);
+        etTitleInput = findViewById(R.id.text_task_title);
+        etDescriptionInput = findViewById(R.id.text_task_description);
+        sCategory = findViewById(R.id.spinner_category);
+        etDateTimeInput = findViewById(R.id.text_completion_date);
+        cbNotification = findViewById(R.id.checkbox_notification);
+        bDelete = findViewById(R.id.button_delete);
+        rvAttachmentList = findViewById(R.id.recycler_attachment_list);
     }
 
     private void configAttachmentRecycleViewer() {
-        attachmentRecyclerView = findViewById(R.id.recycler_attachment_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        attachmentRecyclerView.setLayoutManager(linearLayoutManager);
+        rvAttachmentList.setLayoutManager(linearLayoutManager);
+    }
+
+    private TaskWithAttachments retrieveTask() {
+        Intent intent = getIntent();
+        return intent.getSerializableExtra("task", TaskWithAttachments.class);
     }
 
     private void configureForm(TaskWithAttachments taskWithAttachments) {
@@ -143,15 +141,15 @@ public class AddEditTaskActivity extends AppCompatActivity {
             this.task = task;
             isEdit = true;
 
-            titleInput.setText(task.getTitle());
-            descriptionInput.setText(task.getDescription());
-            dateTimeInput.setText(task.getDoneAt());
-            notificationCheckbox.setChecked(task.isNotification());
+            etTitleInput.setText(task.getTitle());
+            etDescriptionInput.setText(task.getDescription());
+            etDateTimeInput.setText(task.getDoneAt());
+            cbNotification.setChecked(task.isNotification());
 
             categoryListQuerySubscriber = databaseManager.fetchCategories(categoryList -> {
                 setCategorySpinnerData(categoryList);
                 int position = categoryList.indexOf(new Category(task.getCategoryId(), ""));
-                categorySpinner.setSelection(position);
+                sCategory.setSelection(position);
             });
         } else {
             attachments = new ArrayList<>();
@@ -160,21 +158,21 @@ public class AddEditTaskActivity extends AppCompatActivity {
 
         setAttachmentRecyclerViewData(attachments);
 
-        headerLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
-        deleteButton.setVisibility(isEdit ? View.VISIBLE : View.GONE);
-        dateTimeInput.setOnClickListener(v -> showDateTimePicker());
+        tvHeaderLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
+        bDelete.setVisibility(isEdit ? View.VISIBLE : View.GONE);
+        etDateTimeInput.setOnClickListener(v -> showDateTimePicker());
     }
 
     private void setCategorySpinnerData(List<Category> categoryList) {
         categoryList.add(0, new Category(0, ""));
         ArrayAdapter<Category> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, categoryList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
+        sCategory.setAdapter(adapter);
     }
 
     private void setAttachmentRecyclerViewData(List<Attachment> attachments) {
         attachmentListAdapter = new AttachmentListAdapter(this, attachments);
-        attachmentRecyclerView.setAdapter(attachmentListAdapter);
+        rvAttachmentList.setAdapter(attachmentListAdapter);
     }
 
     private void configFilePicker() {
@@ -205,7 +203,7 @@ public class AddEditTaskActivity extends AppCompatActivity {
     }
 
     private void showDateTimePicker() {
-        Calendar calendar = prepareCalendar(dateTimeInput.getText().toString());
+        Calendar calendar = prepareCalendar(etDateTimeInput.getText().toString());
         new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month);
@@ -216,8 +214,8 @@ public class AddEditTaskActivity extends AppCompatActivity {
                 calendar.set(Calendar.MINUTE, minute);
 
                 String dateTimeString = LocalDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId()).format(DATE_TIME_FORMATTER);
-                dateTimeInput.setText(dateTimeString);
-                dateTimeInput.setError(null);
+                etDateTimeInput.setText(dateTimeString);
+                etDateTimeInput.setError(null);
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show();
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
@@ -225,7 +223,7 @@ public class AddEditTaskActivity extends AppCompatActivity {
     private boolean validateForm() {
         boolean isValid = true;
 
-        TextView[] inputWidgets = {titleInput, dateTimeInput};
+        TextView[] inputWidgets = {etTitleInput, etDateTimeInput};
         for (TextView widget : inputWidgets) {
             EditText etWidget = (EditText) widget;
             if (etWidget.length() == 0) {
@@ -234,9 +232,9 @@ public class AddEditTaskActivity extends AppCompatActivity {
             }
         }
 
-        Category chosenCategory = (Category) categorySpinner.getSelectedItem();
+        Category chosenCategory = (Category) sCategory.getSelectedItem();
         if (chosenCategory.getName().isEmpty()) {
-            TextView errorText = (TextView) categorySpinner.getSelectedView();
+            TextView errorText = (TextView) sCategory.getSelectedView();
             errorText.setError("");
             errorText.setTextColor(Color.RED);
             errorText.setText(R.string.spinner_category_error);
@@ -244,20 +242,20 @@ public class AddEditTaskActivity extends AppCompatActivity {
             isValid = false;
         }
 
-        String dateTimeString = dateTimeInput.getText().toString();
+        String dateTimeString = etDateTimeInput.getText().toString();
         if (!isDateTimeValid(dateTimeString)) {
-            dateTimeInput.setError("Invalid date time value");
+            etDateTimeInput.setError("Invalid date time value");
         }
 
         return isValid;
     }
 
     private void createTask() {
-        String title = titleInput.getText().toString();
-        String description = descriptionInput.getText().toString();
-        Category category = (Category) categorySpinner.getSelectedItem();
-        String dateTime = dateTimeInput.getText().toString();
-        boolean notification = notificationCheckbox.isChecked();
+        String title = etTitleInput.getText().toString();
+        String description = etDescriptionInput.getText().toString();
+        Category category = (Category) sCategory.getSelectedItem();
+        String dateTime = etDateTimeInput.getText().toString();
+        boolean notification = cbNotification.isChecked();
 
         task = new Task(title, description, dateTime, notification, category.getCategoryId());
         taskQuerySubscriber = databaseManager.addTask(task, taskId -> {
@@ -268,11 +266,11 @@ public class AddEditTaskActivity extends AppCompatActivity {
     }
 
     private void updateTask() {
-        task.setTitle(titleInput.getText().toString());
-        task.setDescription(descriptionInput.getText().toString());
-        task.setDoneAt(dateTimeInput.getText().toString());
-        task.setNotification(notificationCheckbox.isChecked());
-        Category category = (Category) categorySpinner.getSelectedItem();
+        task.setTitle(etTitleInput.getText().toString());
+        task.setDescription(etDescriptionInput.getText().toString());
+        task.setDoneAt(etDateTimeInput.getText().toString());
+        task.setNotification(cbNotification.isChecked());
+        Category category = (Category) sCategory.getSelectedItem();
         task.setCategoryId(category.getCategoryId());
 
         taskQuerySubscriber = databaseManager.updateTask(task, () -> {
@@ -293,8 +291,8 @@ public class AddEditTaskActivity extends AppCompatActivity {
         }
 
         cancelNotification(this, task);
-        if (notificationCheckbox.isChecked()) {
-            handleNotification(dateTimeInput.getText().toString());
+        if (cbNotification.isChecked()) {
+            handleNotification(etDateTimeInput.getText().toString());
         }
     }
 
@@ -303,7 +301,6 @@ public class AddEditTaskActivity extends AppCompatActivity {
         for (Attachment attachment : attachments) {
             attachment.setTaskId(taskId);
         }
-
         addAttachmentQuerySubscriber = databaseManager.addAttachments(attachments);
     }
 
