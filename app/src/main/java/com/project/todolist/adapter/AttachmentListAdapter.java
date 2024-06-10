@@ -71,4 +71,13 @@ public class AttachmentListAdapter extends RecyclerView.Adapter<AttachmentListAd
     public int getItemCount() {
         return data.size();
     }
+
+    public void addAttachment(Attachment attachment) {
+        data.add(attachment);
+        notifyItemInserted(data.size() - 1);
+    }
+
+    public List<Attachment> getData() {
+        return data;
+    }
 }

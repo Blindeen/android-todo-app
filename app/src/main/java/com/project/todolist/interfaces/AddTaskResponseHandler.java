@@ -2,5 +2,5 @@ package com.project.todolist.interfaces;
 
 @FunctionalInterface
 public interface AddTaskResponseHandler {
-    void onTaskAdded();
+    void onTaskAdded(Long taskId);
 }

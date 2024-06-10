@@ -27,7 +27,7 @@ public interface TaskDao {
             "INSERT INTO Task (title, description, doneAt, categoryId, notification)" +
                     "VALUES (:title, :description, :dateTime, :categoryId, :notification)"
     )
-    Completable insertTask(String title, String description, String dateTime, long categoryId, boolean notification);
+    Single<Long> insertTask(String title, String description, String dateTime, long categoryId, boolean notification);
 
     @Update
     Completable updateTask(Task task);

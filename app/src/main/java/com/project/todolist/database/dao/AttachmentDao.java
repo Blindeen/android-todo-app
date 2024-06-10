@@ -20,6 +20,9 @@ public interface AttachmentDao {
     @Insert
     Completable insertAttachment(Attachment attachment);
 
+    @Insert
+    Completable insertAttachments(List<Attachment> attachments);
+
     @Delete
     Completable deleteAttachment(Attachment attachment);
 }

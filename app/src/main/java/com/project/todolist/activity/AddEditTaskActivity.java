@@ -43,6 +43,7 @@ import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -57,7 +58,9 @@ public class AddEditTaskActivity extends MainActivity {
     private Spinner categorySpinner;
     private CheckBox notificationCheckbox;
     private Button deleteButton;
+
     private RecyclerView attachmentRecyclerView;
+    private AttachmentListAdapter attachmentListAdapter;
 
     private Disposable taskQuerySubscriber;
     private Disposable deleteTaskQuerySubscriber;
@@ -125,9 +128,10 @@ public class AddEditTaskActivity extends MainActivity {
     }
 
     private void configureForm(TaskWithAttachments taskWithAttachments) {
+        List<Attachment> attachments;
         if (taskWithAttachments != null) {
             Task task = taskWithAttachments.getTask();
-            List<Attachment> attachments = taskWithAttachments.getAttachments();
+            attachments = taskWithAttachments.getAttachments();
             this.task = task;
             isEdit = true;
 
@@ -141,11 +145,12 @@ public class AddEditTaskActivity extends MainActivity {
                 int position = categoryList.indexOf(new Category(task.getCategoryId(), ""));
                 categorySpinner.setSelection(position);
             });
-
-            setAttachmentRecyclerViewData(attachments);
         } else {
+            attachments = new ArrayList<>();
             databaseManager.fetchCategories(this::setCategorySpinnerData);
         }
+
+        setAttachmentRecyclerViewData(attachments);
 
         headerLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
         deleteButton.setVisibility(isEdit ? View.VISIBLE : View.GONE);
@@ -160,8 +165,8 @@ public class AddEditTaskActivity extends MainActivity {
     }
 
     private void setAttachmentRecyclerViewData(List<Attachment> attachments) {
-        AttachmentListAdapter adapter = new AttachmentListAdapter(attachments, databaseManager);
-        attachmentRecyclerView.setAdapter(adapter);
+        attachmentListAdapter = new AttachmentListAdapter(attachments, databaseManager);
+        attachmentRecyclerView.setAdapter(attachmentListAdapter);
     }
 
     private void configFilePicker() {
@@ -174,12 +179,16 @@ public class AddEditTaskActivity extends MainActivity {
                             return;
                         }
                         Uri uri = data.getData();
-                        copyFile(this, uri);
                         Attachment attachment = createAttachment(uri, task);
-                        addAttachmentQuerySubscriber = databaseManager.addAttachment(attachment);
-                        attachmentListQuerySubscriber = databaseManager.fetchAttachments(
-                                task, this::setAttachmentRecyclerViewData
-                        );
+                        if (isEdit) {
+                            copyFile(this, uri);
+                            addAttachmentQuerySubscriber = databaseManager.addAttachment(attachment);
+                            attachmentListQuerySubscriber = databaseManager.fetchAttachments(
+                                    task, this::setAttachmentRecyclerViewData
+                            );
+                        } else {
+                            attachmentListAdapter.addAttachment(attachment);
+                        }
                     }
                 });
     }
@@ -240,7 +249,8 @@ public class AddEditTaskActivity extends MainActivity {
         boolean notification = notificationCheckbox.isChecked();
 
         task = new Task(title, description, dateTime, notification, category.getCategoryId());
-        taskQuerySubscriber = databaseManager.addTask(task, () -> {
+        taskQuerySubscriber = databaseManager.addTask(task, taskId -> {
+            saveAttachments(taskId);
             displayToast(this, "Task has been added successfully");
             finish();
         });
@@ -277,6 +287,15 @@ public class AddEditTaskActivity extends MainActivity {
         }
     }
 
+    private void saveAttachments(Long taskId) {
+        List<Attachment> attachments = attachmentListAdapter.getData();
+        for (Attachment attachment : attachments) {
+            attachment.setTaskId(taskId);
+        }
+
+        addAttachmentQuerySubscriber = databaseManager.addAttachments(attachments);
+    }
+
     private void handleNotification(String dateTime) {
         long latency = calculateLatency(dateTime, notificationBeforeCompletionMs);
         scheduleNotification(this, task, latency);
@@ -304,15 +323,12 @@ public class AddEditTaskActivity extends MainActivity {
     }
 
     public void attachFileButtonOnClick(View view) {
-        if (!isEdit && !validateForm()) {
-            return;
-        }
         showFilePicker();
     }
 
     private Attachment createAttachment(Uri uri, Task task) {
         String filenameWithExtension = getFilenameWithExtension(this, uri);
         String pathname = getFilesDir() + "/" + filenameWithExtension;
-        return new Attachment(filenameWithExtension, pathname, task.getTaskId());
+        return new Attachment(filenameWithExtension, pathname, task != null ? task.getTaskId() : 0);
     }
 }

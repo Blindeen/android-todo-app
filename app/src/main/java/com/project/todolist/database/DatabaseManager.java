@@ -42,7 +42,7 @@ public class DatabaseManager {
     }
 
     public Disposable addTask(Task task, AddTaskResponseHandler addTaskResponseHandler) {
-        Completable completable = taskDao.insertTask(
+        Single<Long> completable = taskDao.insertTask(
                 task.getTitle(),
                 task.getDescription(),
                 task.getDoneAt(),
@@ -115,6 +115,17 @@ public class DatabaseManager {
                 .subscribe(
                         () -> displayToast(context, "Attachment has been added successfully"),
                         throwable -> displayToast(context, "Failed to add attachment")
+                );
+    }
+
+    public Disposable addAttachments(List<Attachment> attachments) {
+        Completable completable = attachmentDao.insertAttachments(attachments);
+        return completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> displayToast(context, "Attachments have been added successfully"),
+                        throwable -> displayToast(context, "Failed to add attachments")
                 );
     }
 
