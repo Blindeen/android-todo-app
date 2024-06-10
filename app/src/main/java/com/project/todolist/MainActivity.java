@@ -3,7 +3,6 @@ package com.project.todolist;
 import static com.project.todolist.notification.NotificationUtils.createNotificationChannel;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,15 +28,8 @@ import java.util.List;
 import io.reactivex.rxjava3.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
-    private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
-    private final static Long CHOSEN_CATEGORY_ID_DEFAULT = null;
-    private static final Integer NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT = 0;
-
     protected DatabaseManager databaseManager;
-    protected SharedPreferences sharedPreferences;
-    protected boolean hideDoneTasks;
-    protected Long chosenCategory;
-    protected Long notificationBeforeCompletionMs;
+    private AppPreferences appPreferences;
 
     protected Disposable categoryListQuerySubscriber;
     private Disposable taskListQuerySubscriber;
@@ -62,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         databaseManager = new DatabaseManager(this);
+        appPreferences = new AppPreferences(this);
         createNotificationChannel(this);
-        initializeSharedPreferences();
         configSearchBar();
         configTaskRecycleViewer();
     }
@@ -71,11 +63,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadAppPreferences();
+        appPreferences.loadAppPreferences();
         taskListQuerySubscriber = databaseManager.fetchTasks(
                 titlePattern,
-                hideDoneTasks,
-                chosenCategory,
+                appPreferences.isHideDoneTasks(),
+                appPreferences.getChosenCategory(),
                 this::setTaskRecyclerViewData
         );
     }
@@ -83,9 +75,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (taskListQuerySubscriber != null && !taskListQuerySubscriber.isDisposed()) {
-            taskListQuerySubscriber.dispose();
+        Disposable[] disposables = {categoryListQuerySubscriber, taskListQuerySubscriber};
+        for (Disposable disposable : disposables) {
+            if (disposable != null && !disposable.isDisposed()) {
+                disposable.dispose();
+            }
         }
     }
 
@@ -98,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
                 titlePattern = "%" + searchInputValue + "%";
                 taskListQuerySubscriber = databaseManager.fetchTasks(
                         titlePattern,
-                        hideDoneTasks,
-                        chosenCategory,
+                        appPreferences.isHideDoneTasks(),
+                        appPreferences.getChosenCategory(),
                         MainActivity.this::setTaskRecyclerViewData
                 );
             }
@@ -119,23 +113,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         taskListView.setLayoutManager(linearLayoutManager);
-    }
-
-    protected void initializeSharedPreferences() {
-        String sharedPreferencesFilename = getString(R.string.shared_pref_filename);
-        sharedPreferences = getSharedPreferences(sharedPreferencesFilename, MODE_PRIVATE);
-    }
-
-    protected void loadAppPreferences() {
-        hideDoneTasks = sharedPreferences.getBoolean(getString(R.string.hide_done_tasks_key), HIDE_DONE_TASKS_DEFAULT);
-        chosenCategory = sharedPreferences.getLong(getString(R.string.chosen_category_key), 0);
-        if (chosenCategory == 0) {
-            chosenCategory = CHOSEN_CATEGORY_ID_DEFAULT;
-        }
-        notificationBeforeCompletionMs = sharedPreferences.getLong(
-                getString(R.string.notification_before_min_key),
-                NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT
-        );
     }
 
     public void addTaskButtonOnClick(View view) {

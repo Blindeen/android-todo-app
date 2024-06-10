@@ -28,15 +28,17 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.project.todolist.MainActivity;
+import com.project.todolist.AppPreferences;
 import com.project.todolist.R;
 import com.project.todolist.adapter.AttachmentListAdapter;
+import com.project.todolist.database.DatabaseManager;
 import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
@@ -49,7 +51,10 @@ import java.util.List;
 
 import io.reactivex.rxjava3.disposables.Disposable;
 
-public class AddEditTaskActivity extends MainActivity {
+public class AddEditTaskActivity extends AppCompatActivity {
+    private DatabaseManager databaseManager;
+    private AppPreferences appPreferences;
+
     private Task task;
     boolean isEdit = false;
 
@@ -62,6 +67,7 @@ public class AddEditTaskActivity extends MainActivity {
     private RecyclerView attachmentRecyclerView;
     private AttachmentListAdapter attachmentListAdapter;
 
+    private Disposable categoryListQuerySubscriber;
     private Disposable taskQuerySubscriber;
     private Disposable deleteTaskQuerySubscriber;
     private Disposable attachmentListQuerySubscriber;
@@ -85,6 +91,8 @@ public class AddEditTaskActivity extends MainActivity {
             return insets;
         });
 
+        databaseManager = new DatabaseManager(this);
+        appPreferences = new AppPreferences(this);
         initializeWidgets();
         Intent intent = getIntent();
         TaskWithAttachments taskWithAttachments = intent.getSerializableExtra("task", TaskWithAttachments.class);
@@ -140,14 +148,14 @@ public class AddEditTaskActivity extends MainActivity {
             dateTimeInput.setText(task.getDoneAt());
             notificationCheckbox.setChecked(task.isNotification());
 
-            databaseManager.fetchCategories(categoryList -> {
+            categoryListQuerySubscriber = databaseManager.fetchCategories(categoryList -> {
                 setCategorySpinnerData(categoryList);
                 int position = categoryList.indexOf(new Category(task.getCategoryId(), ""));
                 categorySpinner.setSelection(position);
             });
         } else {
             attachments = new ArrayList<>();
-            databaseManager.fetchCategories(this::setCategorySpinnerData);
+            categoryListQuerySubscriber = databaseManager.fetchCategories(this::setCategorySpinnerData);
         }
 
         setAttachmentRecyclerViewData(attachments);
@@ -300,7 +308,7 @@ public class AddEditTaskActivity extends MainActivity {
     }
 
     private void handleNotification(String dateTime) {
-        long latency = calculateLatency(dateTime, notificationBeforeCompletionMs);
+        long latency = calculateLatency(dateTime, appPreferences.getNotificationBeforeCompletionMs());
         scheduleNotification(this, task, latency);
     }
 

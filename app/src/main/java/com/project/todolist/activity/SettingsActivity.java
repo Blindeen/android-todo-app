@@ -2,7 +2,6 @@ package com.project.todolist.activity;
 
 import static com.project.todolist.utils.Utils.displayToast;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,19 +9,27 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.project.todolist.MainActivity;
+import com.project.todolist.AppPreferences;
 import com.project.todolist.R;
+import com.project.todolist.database.DatabaseManager;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.spinner.NotificationTimeSpinnerItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsActivity extends MainActivity {
+import io.reactivex.rxjava3.disposables.Disposable;
+
+public class SettingsActivity extends AppCompatActivity {
+    private DatabaseManager databaseManager;
+    private AppPreferences appPreferences;
+    private Disposable categoryListQuerySubscriber;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,15 +46,15 @@ public class SettingsActivity extends MainActivity {
             return insets;
         });
 
-        loadAppPreferences();
+        databaseManager = new DatabaseManager(this);
+        appPreferences = new AppPreferences(this);
         configureForm();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (categoryListQuerySubscriber != null) {
+        if (categoryListQuerySubscriber != null && !categoryListQuerySubscriber.isDisposed()) {
             categoryListQuerySubscriber.dispose();
         }
     }
@@ -60,7 +67,7 @@ public class SettingsActivity extends MainActivity {
 
     private void configureHideDoneTasksCheckbox() {
         CheckBox hideDoneTasksCheckbox = findViewById(R.id.checkbox_hide_done_tasks);
-        hideDoneTasksCheckbox.setChecked(hideDoneTasks);
+        hideDoneTasksCheckbox.setChecked(appPreferences.isHideDoneTasks());
     }
 
     private void setCategorySpinnerData(List<Category> categoryList) {
@@ -71,6 +78,7 @@ public class SettingsActivity extends MainActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
 
+        Long chosenCategory = appPreferences.getChosenCategory();
         if (chosenCategory != null) {
             int selectedItem = categoryList.indexOf(new Category(chosenCategory, ""));
             categorySpinner.setSelection(selectedItem);
@@ -85,7 +93,9 @@ public class SettingsActivity extends MainActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         notificationTimeSpinner.setAdapter(adapter);
 
-        int selectedItem = spinnerData.indexOf(new NotificationTimeSpinnerItem(null, notificationBeforeCompletionMs));
+        int selectedItem = spinnerData.indexOf(
+                new NotificationTimeSpinnerItem(null, appPreferences.getNotificationBeforeCompletionMs())
+        );
         notificationTimeSpinner.setSelection(selectedItem);
     }
 
@@ -108,34 +118,28 @@ public class SettingsActivity extends MainActivity {
 
     private void handleHideDoneTasksCheckbox() {
         CheckBox hideDoneTasksCheckbox = findViewById(R.id.checkbox_hide_done_tasks);
-        hideDoneTasks = hideDoneTasksCheckbox.isChecked();
+        appPreferences.setHideDoneTasks(hideDoneTasksCheckbox.isChecked());
     }
 
     private void handleChosenCategorySpinner() {
         Spinner chosenCategorySpinner = findViewById(R.id.spinner_visible_category);
         Category chosenCategory = (Category) chosenCategorySpinner.getSelectedItem();
         if (chosenCategory != null) {
-            this.chosenCategory = chosenCategory.getCategoryId();
+            appPreferences.setChosenCategory(chosenCategory.getCategoryId());
         }
     }
 
     private void handleNotificationTimeSpinner() {
         Spinner notificationTimeSpinner = findViewById(R.id.spinner_notification_time);
         NotificationTimeSpinnerItem item = (NotificationTimeSpinnerItem) notificationTimeSpinner.getSelectedItem();
-        notificationBeforeCompletionMs = item.getValue();
-    }
-
-    private void saveAppPreferences() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(getString(R.string.hide_done_tasks_key), hideDoneTasks);
-        editor.putLong(getString(R.string.notification_before_min_key), notificationBeforeCompletionMs);
-        editor.putLong(getString(R.string.chosen_category_key), chosenCategory);
-        editor.apply();
+        if (item != null) {
+            appPreferences.setNotificationBeforeCompletionMs(item.getValue());
+        }
     }
 
     public void applyButtonOnClick(View view) {
         handleSettingsForm();
-        saveAppPreferences();
+        appPreferences.saveAppPreferences();
         displayToast(this, "Settings applied successfully");
         finish();
     }
