@@ -10,24 +10,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.R;
-import com.project.todolist.database.AppDatabase;
+import com.project.todolist.database.DatabaseManager;
 import com.project.todolist.database.entity.Attachment;
 
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 public class AttachmentListAdapter extends RecyclerView.Adapter<AttachmentListAdapter.ViewHolder> {
     private final List<Attachment> data;
+    private final DatabaseManager databaseManager;
 
-    private final AppDatabase database;
-
-    public AttachmentListAdapter(List<Attachment> data, AppDatabase database) {
+    public AttachmentListAdapter(List<Attachment> data, DatabaseManager databaseManager) {
         this.data = data;
-        this.database = database;
+        this.databaseManager = databaseManager;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -65,23 +59,16 @@ public class AttachmentListAdapter extends RecyclerView.Adapter<AttachmentListAd
         ImageButton deleteAttachmentButton = viewHolder.getDeleteAttachmentButton();
 
         attachmentName.setText(attachment.getName());
-        deleteAttachmentButton.setOnClickListener(v -> deleteAttachment(attachment));
+        deleteAttachmentButton.setOnClickListener(v -> databaseManager.deleteAttachment(
+                attachment,
+                () -> {
+                    data.remove(attachment);
+                    notifyItemRemoved(position);
+                }));
     }
 
     @Override
     public int getItemCount() {
         return data.size();
-    }
-
-    private void deleteAttachment(Attachment attachment) {
-        Completable completable = database.attachmentDao().deleteAttachment(attachment);
-        Disposable disposable = completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {
-                    int position = data.indexOf(attachment);
-                    data.remove(attachment);
-                    notifyItemRemoved(position);
-                });
     }
 }

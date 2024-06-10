@@ -46,10 +46,7 @@ import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AddEditTaskActivity extends MainActivity {
     private Task task;
@@ -139,7 +136,7 @@ public class AddEditTaskActivity extends MainActivity {
             dateTimeInput.setText(task.getDoneAt());
             notificationCheckbox.setChecked(task.isNotification());
 
-            fetchCategories(categoryList -> {
+            databaseManager.fetchCategories(categoryList -> {
                 setCategorySpinnerData(categoryList);
                 int position = categoryList.indexOf(new Category(task.getCategoryId(), ""));
                 categorySpinner.setSelection(position);
@@ -147,7 +144,7 @@ public class AddEditTaskActivity extends MainActivity {
 
             setAttachmentRecyclerViewData(attachments);
         } else {
-            fetchCategories(this::setCategorySpinnerData);
+            databaseManager.fetchCategories(this::setCategorySpinnerData);
         }
 
         headerLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
@@ -163,7 +160,7 @@ public class AddEditTaskActivity extends MainActivity {
     }
 
     private void setAttachmentRecyclerViewData(List<Attachment> attachments) {
-        AttachmentListAdapter adapter = new AttachmentListAdapter(attachments, database);
+        AttachmentListAdapter adapter = new AttachmentListAdapter(attachments, databaseManager);
         attachmentRecyclerView.setAdapter(adapter);
     }
 
@@ -179,7 +176,10 @@ public class AddEditTaskActivity extends MainActivity {
                         Uri uri = data.getData();
                         copyFile(this, uri);
                         Attachment attachment = createAttachment(uri, task);
-                        addAttachment(attachment);
+                        addAttachmentQuerySubscriber = databaseManager.addAttachment(attachment);
+                        attachmentListQuerySubscriber = databaseManager.fetchAttachments(
+                                task, this::setAttachmentRecyclerViewData
+                        );
                     }
                 });
     }
@@ -240,21 +240,10 @@ public class AddEditTaskActivity extends MainActivity {
         boolean notification = notificationCheckbox.isChecked();
 
         task = new Task(title, description, dateTime, notification, category.getCategoryId());
-
-        Completable completable = database.taskDao().insertTask(
-                task.getTitle(),
-                task.getDescription(),
-                task.getDoneAt(),
-                task.getCategoryId(),
-                task.isNotification()
-        );
-        taskQuerySubscriber = completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {
-                    displayToast(this, "New task has been added successfully");
-                    finish();
-                }, throwable -> displayToast(this, "Failed to add new task"));
+        taskQuerySubscriber = databaseManager.addTask(task, () -> {
+            displayToast(this, "Task has been added successfully");
+            finish();
+        });
     }
 
     private void updateTask() {
@@ -265,14 +254,10 @@ public class AddEditTaskActivity extends MainActivity {
         Category category = (Category) categorySpinner.getSelectedItem();
         task.setCategoryId(category.getCategoryId());
 
-        Completable completable = database.taskDao().updateTask(task);
-        taskQuerySubscriber = completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {
-                    displayToast(this, "Task has been updated successfully");
-                    finish();
-                }, throwable -> displayToast(this, "Failed to update task"));
+        taskQuerySubscriber = databaseManager.updateTask(task, () -> {
+            displayToast(this, "Task has been updated successfully");
+            finish();
+        });
     }
 
     private void saveTask() {
@@ -301,23 +286,14 @@ public class AddEditTaskActivity extends MainActivity {
         saveTask();
     }
 
-    private void deleteTask() {
-        Completable completable = database.taskDao().deleteTask(task);
-        deleteTaskQuerySubscriber = completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {
-                    displayToast(this, "Task has been deleted successfully");
-                    finish();
-                }, throwable -> displayToast(this, "Failed to delete task"));
-
+    public void deleteButtonOnClick(View view) {
+        deleteTaskQuerySubscriber = databaseManager.deleteTask(task, () -> {
+            displayToast(this, "Task has been deleted successfully");
+            finish();
+        });
         if (task.isNotification()) {
             cancelNotification(this, task);
         }
-    }
-
-    public void deleteButtonOnClick(View view) {
-        deleteTask();
     }
 
     private void showFilePicker() {
@@ -338,23 +314,5 @@ public class AddEditTaskActivity extends MainActivity {
         String filenameWithExtension = getFilenameWithExtension(this, uri);
         String pathname = getFilesDir() + "/" + filenameWithExtension;
         return new Attachment(filenameWithExtension, pathname, task.getTaskId());
-    }
-
-    private void addAttachment(Attachment attachment) {
-        Completable completable = database.attachmentDao().insertAttachment(attachment);
-        addAttachmentQuerySubscriber = completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {
-                    displayToast(this, "Attachment has been added successfully");
-                    fetchAttachments();
-                }, throwable -> displayToast(this, "Failed to add attachment"));
-    }
-
-    private void fetchAttachments() {
-        attachmentListQuerySubscriber = database.attachmentDao().getAttachmentsByTaskId(task.getTaskId())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::setAttachmentRecyclerViewData);
     }
 }

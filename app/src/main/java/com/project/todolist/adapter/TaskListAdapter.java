@@ -1,7 +1,5 @@
 package com.project.todolist.adapter;
 
-import static com.project.todolist.utils.Utils.displayToast;
-
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -16,23 +14,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.todolist.R;
 import com.project.todolist.activity.AddEditTaskActivity;
-import com.project.todolist.database.AppDatabase;
+import com.project.todolist.database.DatabaseManager;
 import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
 
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHolder> {
     private final List<TaskWithAttachments> data;
+    private final DatabaseManager databaseManager;
 
-    private final Context context;
-    private final AppDatabase database;
+    public TaskListAdapter(Context context, List<TaskWithAttachments> data) {
+        this.data = data;
+        this.databaseManager = new DatabaseManager(context);
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final CheckBox checkBox;
@@ -50,12 +46,6 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         public ImageView getAttachmentIcon() {
             return attachmentIcon;
         }
-    }
-
-    public TaskListAdapter(Context context, List<TaskWithAttachments> data, AppDatabase database) {
-        this.context = context;
-        this.data = data;
-        this.database = database;
     }
 
     @NonNull
@@ -116,18 +106,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
             viewHolder.itemView.post(() -> notifyItemChanged(oldPosition));
         }
 
-        updateTask(task);
-    }
-
-    private void updateTask(Task task) {
-        Completable completable = database.taskDao().updateTask(task);
-        Disposable updateTaskQuerySubscriber = completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        () -> {},
-                        throwable -> displayToast(context, "Cannot update task state")
-                );
+        databaseManager.updateTask(task, () -> {});
     }
 
     private void openAddEditActivity(Context context, TaskWithAttachments task) {

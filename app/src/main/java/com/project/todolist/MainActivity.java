@@ -1,7 +1,6 @@
 package com.project.todolist;
 
 import static com.project.todolist.notification.NotificationUtils.createNotificationChannel;
-import static com.project.todolist.utils.Utils.displayToast;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,26 +21,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.project.todolist.activity.AddEditTaskActivity;
 import com.project.todolist.activity.SettingsActivity;
 import com.project.todolist.adapter.TaskListAdapter;
-import com.project.todolist.database.AppDatabase;
-import com.project.todolist.database.dao.CategoryDao;
-import com.project.todolist.database.dao.TaskDao;
-import com.project.todolist.database.entity.Category;
+import com.project.todolist.database.DatabaseManager;
 import com.project.todolist.database.entity.TaskWithAttachments;
-import com.project.todolist.interfaces.ResponseHandler;
 
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     private final static boolean HIDE_DONE_TASKS_DEFAULT = false;
     private final static Long CHOSEN_CATEGORY_ID_DEFAULT = null;
     private static final Integer NOTIFICATION_BEFORE_COMPLETION_MIN_DEFAULT = 0;
 
-    protected AppDatabase database;
+    protected DatabaseManager databaseManager;
     protected SharedPreferences sharedPreferences;
     protected boolean hideDoneTasks;
     protected Long chosenCategory;
@@ -69,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        database = AppDatabase.getDatabase(this);
+        databaseManager = new DatabaseManager(this);
         createNotificationChannel(this);
         initializeSharedPreferences();
         configSearchBar();
@@ -80,7 +72,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadAppPreferences();
-        fetchTasks();
+        taskListQuerySubscriber = databaseManager.fetchTasks(
+                titlePattern,
+                hideDoneTasks,
+                chosenCategory,
+                this::setTaskRecyclerViewData
+        );
     }
 
     @Override
@@ -99,7 +96,12 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 String searchInputValue = s.toString();
                 titlePattern = "%" + searchInputValue + "%";
-                fetchTasks();
+                taskListQuerySubscriber = databaseManager.fetchTasks(
+                        titlePattern,
+                        hideDoneTasks,
+                        chosenCategory,
+                        MainActivity.this::setTaskRecyclerViewData
+                );
             }
 
             @Override
@@ -149,34 +151,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    protected void fetchCategories(ResponseHandler responseHandler) {
-        CategoryDao categoryDao = database.categoryDao();
-        Single<List<Category>> categoryListSingle = categoryDao.getAll();
-        categoryListQuerySubscriber = categoryListSingle
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        responseHandler::handle,
-                        throwable -> displayToast(this, "Unable to fetch categories")
-                );
-    }
-
-    private void fetchTasks() {
-        TaskDao taskDao = database.taskDao();
-        Single<List<TaskWithAttachments>> taskList = taskDao.getTasks(titlePattern, hideDoneTasks, chosenCategory);
-        taskListQuerySubscriber = taskList
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        this::setTaskRecyclerViewData,
-                        throwable -> displayToast(this, "Unable to fetch tasks")
-                );
-    }
-
     private void setTaskRecyclerViewData(List<TaskWithAttachments> taskList) {
         TaskListAdapter taskListAdapter = (TaskListAdapter) taskListView.getAdapter();
         if (taskListAdapter == null) {
-            taskListAdapter = new TaskListAdapter(this, taskList, database);
+            taskListAdapter = new TaskListAdapter(this, taskList);
             taskListView.setAdapter(taskListAdapter);
         } else {
             taskListAdapter.setData(taskList);

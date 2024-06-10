@@ -54,7 +54,7 @@ public class SettingsActivity extends MainActivity {
 
     private void configureForm() {
         configureHideDoneTasksCheckbox();
-        fetchCategories(this::setCategorySpinnerData);
+        categoryListQuerySubscriber = databaseManager.fetchCategories(this::setCategorySpinnerData);
         configureNotificationTimeSpinner();
     }
 
