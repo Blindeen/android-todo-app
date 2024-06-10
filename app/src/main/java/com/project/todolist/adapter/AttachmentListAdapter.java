@@ -1,5 +1,8 @@
 package com.project.todolist.adapter;
 
+import static com.project.todolist.utils.FileUtils.deleteFile;
+
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +22,9 @@ public class AttachmentListAdapter extends RecyclerView.Adapter<AttachmentListAd
     private final List<Attachment> data;
     private final DatabaseManager databaseManager;
 
-    public AttachmentListAdapter(List<Attachment> data, DatabaseManager databaseManager) {
+    public AttachmentListAdapter(Context context, List<Attachment> data) {
         this.data = data;
-        this.databaseManager = databaseManager;
+        this.databaseManager = new DatabaseManager(context);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -62,6 +65,7 @@ public class AttachmentListAdapter extends RecyclerView.Adapter<AttachmentListAd
         deleteAttachmentButton.setOnClickListener(v -> databaseManager.deleteAttachment(
                 attachment,
                 () -> {
+                    deleteFile(attachment.getPath());
                     data.remove(attachment);
                     notifyItemRemoved(position);
                 }));

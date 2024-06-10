@@ -11,6 +11,7 @@ import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
+import com.project.todolist.interfaces.AddAttachmentResponseHandler;
 import com.project.todolist.interfaces.AddTaskResponseHandler;
 import com.project.todolist.interfaces.AttachmentResponseHandler;
 import com.project.todolist.interfaces.CategoryResponseHandler;
@@ -107,13 +108,13 @@ public class DatabaseManager {
                 );
     }
 
-    public Disposable addAttachment(Attachment attachment) {
+    public Disposable addAttachment(Attachment attachment, AddAttachmentResponseHandler addAttachmentResponseHandler) {
         Completable completable = attachmentDao.insertAttachment(attachment);
         return completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        () -> displayToast(context, "Attachment has been added successfully"),
+                        addAttachmentResponseHandler::onAttachmentAdded,
                         throwable -> displayToast(context, "Failed to add attachment")
                 );
     }

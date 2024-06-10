@@ -165,7 +165,7 @@ public class AddEditTaskActivity extends MainActivity {
     }
 
     private void setAttachmentRecyclerViewData(List<Attachment> attachments) {
-        attachmentListAdapter = new AttachmentListAdapter(attachments, databaseManager);
+        attachmentListAdapter = new AttachmentListAdapter(this, attachments);
         attachmentRecyclerView.setAdapter(attachmentListAdapter);
     }
 
@@ -180,11 +180,11 @@ public class AddEditTaskActivity extends MainActivity {
                         }
                         Uri uri = data.getData();
                         Attachment attachment = createAttachment(uri, task);
+                        copyFile(this, uri);
                         if (isEdit) {
-                            copyFile(this, uri);
-                            addAttachmentQuerySubscriber = databaseManager.addAttachment(attachment);
-                            attachmentListQuerySubscriber = databaseManager.fetchAttachments(
-                                    task, this::setAttachmentRecyclerViewData
+                            addAttachmentQuerySubscriber = databaseManager.addAttachment(
+                                    attachment,
+                                    () -> attachmentListAdapter.addAttachment(attachment)
                             );
                         } else {
                             attachmentListAdapter.addAttachment(attachment);

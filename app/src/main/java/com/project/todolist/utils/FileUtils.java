@@ -44,4 +44,11 @@ public class FileUtils {
             displayToast(context, "Failed to copy file");
         }
     }
+
+    public static void deleteFile(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
 }
