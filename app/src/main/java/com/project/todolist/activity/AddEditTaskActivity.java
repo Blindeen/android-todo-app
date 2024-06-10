@@ -134,11 +134,12 @@ public class AddEditTaskActivity extends AppCompatActivity {
     }
 
     private void configureForm(TaskWithAttachments taskWithAttachments) {
+        tvHeaderLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
+
         List<Attachment> attachments;
         if (taskWithAttachments != null) {
-            Task task = taskWithAttachments.getTask();
+            this.task = taskWithAttachments.getTask();
             attachments = taskWithAttachments.getAttachments();
-            this.task = task;
             isEdit = true;
 
             etTitleInput.setText(task.getTitle());
@@ -157,8 +158,6 @@ public class AddEditTaskActivity extends AppCompatActivity {
         }
 
         setAttachmentRecyclerViewData(attachments);
-
-        tvHeaderLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
         bDelete.setVisibility(isEdit ? View.VISIBLE : View.GONE);
         etDateTimeInput.setOnClickListener(v -> showDateTimePicker());
     }
@@ -181,25 +180,30 @@ public class AddEditTaskActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         Intent data = result.getData();
-                        if (data == null || data.getData() == null) {
-                            return;
-                        }
-                        Uri uri = data.getData();
-                        Attachment attachment = createAttachment(uri, task);
-                        copyFile(this, uri);
-                        if (isEdit) {
-                            addAttachmentQuerySubscriber = databaseManager.addAttachment(
-                                    attachment,
-                                    attachmentId -> {
-                                        attachment.setAttachmentId(attachmentId);
-                                        attachmentListAdapter.addAttachment(attachment);
-                                    }
-                            );
-                        } else {
-                            attachmentListAdapter.addAttachment(attachment);
-                        }
+                        filePickerOnResult(data);
                     }
                 });
+    }
+
+    private void filePickerOnResult(Intent data) {
+        if (data == null || data.getData() == null) {
+            return;
+        }
+
+        Uri uri = data.getData();
+        Attachment attachment = createAttachment(uri, task);
+        copyFile(this, uri);
+        if (isEdit) {
+            addAttachmentQuerySubscriber = databaseManager.addAttachment(
+                    attachment,
+                    attachmentId -> {
+                        attachment.setAttachmentId(attachmentId);
+                        attachmentListAdapter.addAttachment(attachment);
+                    }
+            );
+        } else {
+            attachmentListAdapter.addAttachment(attachment);
+        }
     }
 
     private void showDateTimePicker() {
@@ -309,11 +313,16 @@ public class AddEditTaskActivity extends AppCompatActivity {
         scheduleNotification(this, task, latency);
     }
 
-    public void addButtonOnClick(View view) {
+    public void saveButtonOnClick(View view) {
         saveTask();
     }
 
     public void deleteButtonOnClick(View view) {
+        deleteTask();
+        deleteAttachments();
+    }
+
+    private void deleteTask() {
         deleteTaskQuerySubscriber = databaseManager.deleteTask(task, () -> {
             displayToast(this, "Task has been deleted successfully");
             finish();
@@ -321,7 +330,9 @@ public class AddEditTaskActivity extends AppCompatActivity {
         if (task.isNotification()) {
             cancelNotification(this, task);
         }
+    }
 
+    private void deleteAttachments() {
         List<Attachment> attachments = attachmentListAdapter.getData();
         for (Attachment attachment : attachments) {
             deleteFile(attachment.getName());
@@ -329,15 +340,14 @@ public class AddEditTaskActivity extends AppCompatActivity {
         attachmentListQuerySubscriber = databaseManager.deleteAttachments(attachments);
     }
 
+    public void attachFileButtonOnClick(View view) {
+        showFilePicker();
+    }
+
     private void showFilePicker() {
         Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
         chooseFile.setType("*/*");
-        chooseFile = Intent.createChooser(chooseFile, "Choose a file");
         filePickerLauncher.launch(chooseFile);
-    }
-
-    public void attachFileButtonOnClick(View view) {
-        showFilePicker();
     }
 
     private Attachment createAttachment(Uri uri, Task task) {
