@@ -109,7 +109,7 @@ public class DatabaseManager {
     }
 
     public Disposable addAttachment(Attachment attachment, AddAttachmentResponseHandler addAttachmentResponseHandler) {
-        Completable completable = attachmentDao.insertAttachment(attachment);
+        Single<Long> completable = attachmentDao.insertAttachment(attachment);
         return completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -149,6 +149,18 @@ public class DatabaseManager {
                 .subscribe(
                         deleteAttachmentResponseHandler::onAttachmentDeleted,
                         throwable -> displayToast(context, "Failed to delete attachment")
+                );
+    }
+
+    public Disposable deleteAttachments(List<Attachment> attachments) {
+        Completable completable = attachmentDao.deleteAttachments(attachments);
+        return completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> {
+                        },
+                        throwable -> displayToast(context, "Failed to delete attachments")
                 );
     }
 }

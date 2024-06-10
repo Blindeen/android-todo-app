@@ -18,11 +18,14 @@ public interface AttachmentDao {
     Single<List<Attachment>> getAttachmentsByTaskId(long taskId);
 
     @Insert
-    Completable insertAttachment(Attachment attachment);
+    Single<Long> insertAttachment(Attachment attachment);
 
     @Insert
     Completable insertAttachments(List<Attachment> attachments);
 
     @Delete
     Completable deleteAttachment(Attachment attachment);
+
+    @Delete
+    Completable deleteAttachments(List<Attachment> attachments);
 }

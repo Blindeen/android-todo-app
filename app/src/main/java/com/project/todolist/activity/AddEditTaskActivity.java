@@ -184,7 +184,10 @@ public class AddEditTaskActivity extends MainActivity {
                         if (isEdit) {
                             addAttachmentQuerySubscriber = databaseManager.addAttachment(
                                     attachment,
-                                    () -> attachmentListAdapter.addAttachment(attachment)
+                                    attachmentId -> {
+                                        attachment.setAttachmentId(attachmentId);
+                                        attachmentListAdapter.addAttachment(attachment);
+                                    }
                             );
                         } else {
                             attachmentListAdapter.addAttachment(attachment);
@@ -313,6 +316,12 @@ public class AddEditTaskActivity extends MainActivity {
         if (task.isNotification()) {
             cancelNotification(this, task);
         }
+
+        List<Attachment> attachments = attachmentListAdapter.getData();
+        for (Attachment attachment : attachments) {
+            deleteFile(attachment.getName());
+        }
+        attachmentListQuerySubscriber = databaseManager.deleteAttachments(attachments);
     }
 
     private void showFilePicker() {
