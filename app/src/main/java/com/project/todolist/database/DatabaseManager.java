@@ -13,7 +13,6 @@ import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
 import com.project.todolist.interfaces.AddAttachmentResponseHandler;
 import com.project.todolist.interfaces.AddTaskResponseHandler;
-import com.project.todolist.interfaces.AttachmentResponseHandler;
 import com.project.todolist.interfaces.CategoryResponseHandler;
 import com.project.todolist.interfaces.DeleteAttachmentResponseHandler;
 import com.project.todolist.interfaces.DeleteTaskResponseHandler;
@@ -125,19 +124,9 @@ public class DatabaseManager {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        () -> displayToast(context, "Attachments have been added successfully"),
+                        () -> {
+                        },
                         throwable -> displayToast(context, "Failed to add attachments")
-                );
-    }
-
-    public Disposable fetchAttachments(Task task, AttachmentResponseHandler attachmentResponseHandler) {
-        Single<List<Attachment>> completable = attachmentDao.getAttachmentsByTaskId(task.getTaskId());
-        return completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        attachmentResponseHandler::onAttachmentFetched,
-                        throwable -> displayToast(context, "Failed to fetch attachments")
                 );
     }
 
