@@ -4,7 +4,9 @@ import static com.project.todolist.utils.Utils.displayToast;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
@@ -21,13 +23,29 @@ public class FileUtils {
         return "." + extension;
     }
 
-    public static String getFilenameWithExtension(Context context, Uri uri) {
-        String filename = uri.getLastPathSegment();
-        String fileExtension = getFileExtension(context, uri);
-        return filename + fileExtension;
+    public static String getFilenameWithExtension(Context context, Uri uri) throws IOException {
+        String filename;
+        if (context.getContentResolver().getType(uri) != null) {
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (columnIndex != -1) {
+                        filename = cursor.getString(columnIndex);
+                    } else {
+                        throw new IOException("Column " + OpenableColumns.DISPLAY_NAME + " does not exist in the cursor");
+                    }
+                } else {
+                    throw new IOException("Cursor is null or could not move to first row");
+                }
+            }
+        } else {
+            filename = uri.getLastPathSegment() + getFileExtension(context, uri);
+        }
+
+        return filename;
     }
 
-    public static void copyFile(Context context, Uri sourceUri) {
+    public static void copyFile(Context context, Uri sourceUri) throws IOException {
         String filenameWithExtension = getFilenameWithExtension(context, sourceUri);
         String pathname = context.getFilesDir() + "/" + filenameWithExtension;
         File destinationFile = new File(pathname);

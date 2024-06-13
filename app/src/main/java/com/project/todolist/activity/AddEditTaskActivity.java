@@ -27,6 +27,7 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -43,6 +44,7 @@ import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,6 +59,7 @@ public class AddEditTaskActivity extends AppCompatActivity {
             attachmentListQuerySubscriber, addAttachmentQuerySubscriber;
 
     private Task task;
+    private List<Attachment> attachments = new ArrayList<>();
     boolean isEdit = false;
 
     private TextView tvHeaderLabel;
@@ -90,6 +93,9 @@ public class AddEditTaskActivity extends AppCompatActivity {
         initializeWidgets();
         configAttachmentRecycleViewer();
         TaskWithAttachments taskWithAttachments = retrieveTask();
+        if (savedInstanceState != null) {
+            attachments = savedInstanceState.getSerializable("attachments", ArrayList.class);
+        }
         configureForm(taskWithAttachments);
         configFilePicker();
     }
@@ -109,6 +115,12 @@ public class AddEditTaskActivity extends AppCompatActivity {
                 disposable.dispose();
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putSerializable("attachments", new ArrayList<>(attachmentListAdapter.getData()));
     }
 
     private void initializeWidgets() {
@@ -134,9 +146,6 @@ public class AddEditTaskActivity extends AppCompatActivity {
     }
 
     private void configureForm(TaskWithAttachments taskWithAttachments) {
-        tvHeaderLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
-
-        List<Attachment> attachments;
         if (taskWithAttachments != null) {
             this.task = taskWithAttachments.getTask();
             attachments = taskWithAttachments.getAttachments();
@@ -153,11 +162,11 @@ public class AddEditTaskActivity extends AppCompatActivity {
                 sCategory.setSelection(position);
             });
         } else {
-            attachments = new ArrayList<>();
             categoryListQuerySubscriber = databaseManager.fetchCategories(this::setCategorySpinnerData);
         }
 
         setAttachmentRecyclerViewData(attachments);
+        tvHeaderLabel.setText(isEdit ? R.string.edit_task_header : R.string.new_task_header);
         bDelete.setVisibility(isEdit ? View.VISIBLE : View.GONE);
         etDateTimeInput.setOnClickListener(v -> showDateTimePicker());
     }
@@ -191,8 +200,14 @@ public class AddEditTaskActivity extends AppCompatActivity {
         }
 
         Uri uri = data.getData();
-        Attachment attachment = createAttachment(uri, task);
-        copyFile(this, uri);
+        Attachment attachment;
+        try {
+            attachment = createAttachment(uri, task);
+            copyFile(this, uri);
+        } catch (IOException e) {
+            displayToast(this, "Failed to copy file");
+            return;
+        }
         if (isEdit) {
             addAttachmentQuerySubscriber = databaseManager.addAttachment(
                     attachment,
@@ -350,7 +365,7 @@ public class AddEditTaskActivity extends AppCompatActivity {
         filePickerLauncher.launch(chooseFile);
     }
 
-    private Attachment createAttachment(Uri uri, Task task) {
+    private Attachment createAttachment(Uri uri, Task task) throws IOException {
         String filenameWithExtension = getFilenameWithExtension(this, uri);
         String pathname = getFilesDir() + "/" + filenameWithExtension;
         return new Attachment(filenameWithExtension, pathname, task != null ? task.getTaskId() : 0);
