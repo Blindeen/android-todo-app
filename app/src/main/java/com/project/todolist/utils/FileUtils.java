@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
+import com.project.todolist.database.entity.Attachment;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,10 +47,8 @@ public class FileUtils {
         return filename;
     }
 
-    public static void copyFile(Context context, Uri sourceUri) throws IOException {
-        String filenameWithExtension = getFilenameWithExtension(context, sourceUri);
-        String pathname = context.getFilesDir() + "/" + filenameWithExtension;
-        File destinationFile = new File(pathname);
+    public static void copyFile(Context context, Uri sourceUri, Attachment attachment) throws IOException {
+        File destinationFile = new File(attachment.getPath());
 
         try (InputStream in = context.getContentResolver().openInputStream(sourceUri);
              FileOutputStream out = new FileOutputStream(destinationFile)

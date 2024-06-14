@@ -43,6 +43,7 @@ import com.project.todolist.database.entity.Attachment;
 import com.project.todolist.database.entity.Category;
 import com.project.todolist.database.entity.Task;
 import com.project.todolist.database.entity.TaskWithAttachments;
+import com.project.todolist.utils.FileUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -203,7 +204,7 @@ public class AddEditTaskActivity extends AppCompatActivity {
         Attachment attachment;
         try {
             attachment = createAttachment(uri, task);
-            copyFile(this, uri);
+            copyFile(this, uri, attachment);
         } catch (IOException e) {
             displayToast(this, "Failed to copy file");
             return;
@@ -350,7 +351,7 @@ public class AddEditTaskActivity extends AppCompatActivity {
     private void deleteAttachments() {
         List<Attachment> attachments = attachmentListAdapter.getData();
         for (Attachment attachment : attachments) {
-            deleteFile(attachment.getName());
+            FileUtils.deleteFile(attachment.getPath());
         }
         attachmentListQuerySubscriber = databaseManager.deleteAttachments(attachments);
     }
@@ -367,7 +368,7 @@ public class AddEditTaskActivity extends AppCompatActivity {
 
     private Attachment createAttachment(Uri uri, Task task) throws IOException {
         String filenameWithExtension = getFilenameWithExtension(this, uri);
-        String pathname = getFilesDir() + "/" + filenameWithExtension;
+        String pathname = getFilesDir() + "/" + task.getTaskId() + "_" + filenameWithExtension;
         return new Attachment(filenameWithExtension, pathname, task != null ? task.getTaskId() : 0);
     }
 }
